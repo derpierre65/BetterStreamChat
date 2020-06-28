@@ -1,0 +1,24 @@
+{
+	"name": "Stream Chat Twitch Colors",
+	"version": "1.0",
+	"description": "Twitch Chat Colors in YouTube or Trovo Chat",
+	"manifest_version": 2,
+	"content_scripts": [
+		{
+			"js": [
+				"init.js"
+			],
+			"matches": [
+				"https://trovo.live/*",
+				"https://www.youtube.com/*"
+			]
+		}
+	],
+	"options_ui": {
+		"page": "options.html",
+		"open_in_tab": false
+	},
+	"permissions": [
+		"storage"
+	]
+}
