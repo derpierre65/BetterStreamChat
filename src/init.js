@@ -7,7 +7,8 @@ const Helper = {
 				fullName: true,
 				hideAvatar: true,
 				timestamp: true,
-				timestampSeconds: true
+				timestampSeconds: false,
+				fontSize: 12
 			}
 		};
 	},
@@ -372,6 +373,9 @@ const Trovo = {
 		let settings = Helper.getDefaultSettings();
 		try {
 			settings = await Helper.getSettings();
+			if (typeof settings === 'undefined') {
+				settings = Helper.getDefaultSettings();
+			}
 		}
 		catch (e) {
 			console.log('catch', e);
@@ -431,6 +435,44 @@ const Trovo = {
 		});
 
 		observer.observe(document.querySelector('.chat-list-wrap'), { attributes: true, childList: true, characterData: true });
+
+		let style = document.createElement('style');
+		let cssCode = `
+		.chat-list-wrap .message * {
+			font-size: ${settings.trovo.fontSize}px !important;
+		}
+		.chat-list-wrap .message-user {
+			margin: 0;
+		}
+		.message.gift-message {
+			padding: 0;
+			margin: 2px 0;
+		}
+		`;
+		style.type = 'text/css';
+		if (typeof style.styleSheet !== 'undefined') {
+			style.styleSheet.cssText = cssCode;
+		}
+		else {
+			style.appendChild(document.createTextNode(cssCode));
+		}
+		document.body.append(style);
+
+		// update viewer count every 5s
+		/*window.setInterval(() => {
+			console.log('update interval');
+			try {
+				let liveInfo = document.querySelector('#live-fullscreen .li-wrap');
+				console.log(liveInfo, liveInfo.__vue__);
+				if (liveInfo && liveInfo.__vue__) {
+					console.log('lol');
+					liveInfo.querySelector('.viewer span').innerText = liveInfo.__vue__.liveInfo.channelInfo.viewers;
+				}
+			}
+			catch (e) {
+				console.log('error queryselector');
+			}
+		}, 5000);*/
 	}
 };
 
@@ -449,7 +491,9 @@ else {
 				fullName: document.getElementById('trovoFullName').checked,
 				hideAvatar: document.getElementById('trovoHideAvatar').checked,
 				timestamp: document.getElementById('trovoShowTimestamp').checked,
-				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked
+				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
+				fontSize: document.getElementById('trovoFontSize').value,
+				// showRealViewers: document.getElementById('trovoShowRealViewers').checked
 			}
 		};
 
@@ -467,7 +511,9 @@ else {
 			document.getElementById('trovoFullName').checked = items.trovo.fullName;
 			document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
 			document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
-			document.getElementById('trovoShowTimestampSeconds').checked = items.timestampSeconds;
+			document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
+			document.getElementById('trovoFontSize').value = items.trovo.fontSize;
+			// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
 		});
 	}
 

@@ -1,22 +1,52 @@
 <!DOCTYPE html>
 <html>
-<head><title>Stream Chat Twitch Colors</title></head>
+<head>
+	<title>BetterStreamChat</title>
+	<style>
+		dt, dd {
+			padding: 0;
+			margin: 0;
+		}
+
+		dd {
+			margin: 5px;
+		}
+
+		body {
+			padding: 10px;
+		}
+	</style>
+</head>
 <body>
 	<div id="status"></div>
 
 	<h3>Trovo</h3>
-	<div>
-		<label><input type="checkbox" id="trovoFullName">Full name</label>
-	</div>
-	<div>
-		<label><input type="checkbox" id="trovoHideAvatar">Hide avatar</label>
-	</div>
-	<div>
-		<label><input type="checkbox" id="trovoShowTimestamp">Show timestamp</label>
-	</div>
-	<div>
-		<label><input type="checkbox" id="trovoShowTimestampSeconds">Show seconds in timestamp</label>
-	</div>
+	<dl>
+		<dd>
+			<label><input type="checkbox" id="trovoFullName">Full name</label>
+		</dd>
+		<dd>
+			<label><input type="checkbox" id="trovoHideAvatar">Hide avatar</label>
+		</dd>
+		<dd>
+			<label><input type="checkbox" id="trovoShowTimestamp">Show timestamp</label>
+		</dd>
+		<dd>
+			<label><input type="checkbox" id="trovoShowTimestampSeconds">Show seconds in timestamp</label>
+		</dd>
+		<dd style="display:none;">
+			<label><input type="checkbox" id="trovoShowRealViewers">Show real viewer number</label>
+		</dd>
+		<dt>Message font size</dt>
+		<dd>
+			<input type="number" min="6" max="40" id="trovoFontSize" />
+		</dd>
+	</dl>
+
+	<h3>YouTube</h3>
+	<dl>
+		<dt>coming soon</dt>
+	</dl>
 
 	<br />
 	<button id="save">Save</button>
