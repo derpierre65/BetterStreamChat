@@ -1,25 +1,20 @@
 let defaultColors = ['#FF0000', '#0000FF', '#00FF00', '#B22222', '#FF7F50', '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E', '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'];
 
 const Helper = {
+	getDefaultSettings() {
+		return {
+			trovo: {
+				fullName: true,
+				hideAvatar: true,
+				timestamp: true,
+				timestampSeconds: true
+			}
+		};
+	},
 	getSettings() {
 		return new Promise((resolve, reject) => {
-			if (typeof browser !== 'undefined') {
-				browser.storage.sync.get({
-					trovoFullName: true,
-					trovoHideAvatar: true,
-					trovoShowTimestamp: true,
-					trovoShowTimestampSeconds: true
-				}).then(resolve, reject);
-			}
-			else if (typeof chrome !== 'undefined') {
-				chrome.storage.sync.get({
-					trovoFullName: true,
-					trovoHideAvatar: true,
-					trovoShowTimestamp: true,
-					trovoShowTimestampSeconds: true
-				}, function (items) {
-					resolve(items);
-				});
+			if (typeof chrome !== 'undefined') {
+				chrome.storage.sync.get(this.getDefaultSettings(), resolve);
 			}
 			else {
 				reject('browser not supported?');
@@ -39,57 +34,6 @@ const Helper = {
 		}
 
 		return defaultColors[Math.abs(hash % defaultColors.length)];
-	}
-};
-
-const YouTube = {
-	init() {
-		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
-
-		function init(documentElement, target) {
-			if (target !== null) {
-				function setAuthorColor(node) {
-					let author = node.querySelector('#author-name');
-					if (author) {
-						author.style.color = Helper.getUserChatColor(author.innerText);
-					}
-				}
-
-				const observer = new MutationObserver(function (mutations) {
-					for (let mutation of mutations) {
-						for (let node of mutation.addedNodes) {
-							setAuthorColor(node);
-						}
-					}
-				});
-
-				for (let element of documentElement.querySelectorAll('yt-live-chat-text-message-renderer')) {
-					setAuthorColor(element);
-				}
-
-				const config = { attributes: true, childList: true, characterData: true };
-				observer.observe(target, config);
-			}
-		}
-
-		let target = document.querySelector(chatQuerySelector);
-		if (target === null) {
-			const bodyObserver = new MutationObserver(function (mutations) {
-				let chatFrame = document.querySelector('#chatframe');
-				if (chatFrame) {
-					bodyObserver.disconnect();
-					let documentElement = chatFrame.contentDocument;
-					target = documentElement.querySelector(chatQuerySelector);
-					init(documentElement, target);
-				}
-			});
-
-			const config = { childList: true };
-			bodyObserver.observe(document.querySelector('body'), config);
-		}
-		else {
-			init(document, target);
-		}
 	}
 };
 
@@ -372,14 +316,60 @@ const BTTV = {
 	}
 };
 
+const YouTube = {
+	init() {
+		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
+
+		function init(documentElement, target) {
+			if (target !== null) {
+				function setAuthorColor(node) {
+					let author = node.querySelector('#author-name');
+					if (author) {
+						author.style.color = Helper.getUserChatColor(author.innerText);
+					}
+				}
+
+				const observer = new MutationObserver(function (mutations) {
+					for (let mutation of mutations) {
+						for (let node of mutation.addedNodes) {
+							setAuthorColor(node);
+						}
+					}
+				});
+
+				for (let element of documentElement.querySelectorAll('yt-live-chat-text-message-renderer')) {
+					setAuthorColor(element);
+				}
+
+				const config = { attributes: true, childList: true, characterData: true };
+				observer.observe(target, config);
+			}
+		}
+
+		let target = document.querySelector(chatQuerySelector);
+		if (target === null) {
+			const bodyObserver = new MutationObserver(function (mutations) {
+				let chatFrame = document.querySelector('#chatframe');
+				if (chatFrame) {
+					bodyObserver.disconnect();
+					let documentElement = chatFrame.contentDocument;
+					target = documentElement.querySelector(chatQuerySelector);
+					init(documentElement, target);
+				}
+			});
+
+			const config = { childList: true };
+			bodyObserver.observe(document.querySelector('body'), config);
+		}
+		else {
+			init(document, target);
+		}
+	}
+};
+
 const Trovo = {
 	async init() {
-		let settings = {
-			trovoFullName: true,
-			trovoHideAvatar: true,
-			trovoShowTimestamp: true,
-			trovoShowTimestampSeconds: true
-		};
+		let settings = Helper.getDefaultSettings();
 		try {
 			settings = await Helper.getSettings();
 		}
@@ -388,7 +378,7 @@ const Trovo = {
 		}
 
 		function handleMessage(node) {
-			if (settings.trovoHideAvatar) {
+			if (settings.trovo.hideAvatar) {
 				let avatar = node.querySelector('.avatar');
 				if (avatar) {
 					avatar.remove();
@@ -398,17 +388,17 @@ const Trovo = {
 				let nickname = node.querySelector('.nick-name');
 				let realname = nickname.getAttribute('title');
 				nickname.style.color = Helper.getUserChatColor(realname);
-				if (settings.trovoFullName) {
+				if (settings.trovo.fullName) {
 					nickname.innerText = realname;
 				}
-				if (settings.trovoShowTimestamp) {
+				if (settings.trovo.timestamp) {
 					let span = document.createElement('span');
 					let splits = node.id.split('_');
 					let date = splits.length === 1 ? new Date() : new Date(parseInt(splits[0]));
 					span.style.fontSize = '12px';
 
 					let timestamp = date.toLocaleTimeString();
-					if (!settings.trovoShowTimestampSeconds) {
+					if (!settings.trovo.timestampSeconds) {
 						timestamp = timestamp.substr(0, timestamp.length - 3);
 					}
 
@@ -444,9 +434,43 @@ const Trovo = {
 	}
 };
 
+// init trovo stuff
 if (location.hostname.toLowerCase() === 'trovo.live') {
 	Trovo.init();
 }
-else {
+// init youtube stuff
+else if (location.hostname.toLowerCase().includes('youtube.com')) {
 	YouTube.init();
+}
+else {
+	function saveOptions() {
+		let settings = {
+			trovo: {
+				fullName: document.getElementById('trovoFullName').checked,
+				hideAvatar: document.getElementById('trovoHideAvatar').checked,
+				timestamp: document.getElementById('trovoShowTimestamp').checked,
+				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked
+			}
+		};
+
+		chrome.storage.sync.set(settings, function () {
+			let status = document.getElementById('status');
+			status.textContent = 'Options maybe saved. :)';
+			setTimeout(function () {
+				status.textContent = '';
+			}, 1500);
+		});
+	}
+
+	function restoreOptions() {
+		Helper.getSettings().then((items) => {
+			document.getElementById('trovoFullName').checked = items.trovo.fullName;
+			document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
+			document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
+			document.getElementById('trovoShowTimestampSeconds').checked = items.timestampSeconds;
+		});
+	}
+
+	document.addEventListener('DOMContentLoaded', restoreOptions);
+	document.getElementById('save').addEventListener('click', saveOptions);
 }
