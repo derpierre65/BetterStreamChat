@@ -4,9 +4,6 @@
 
 https://addons.mozilla.org/de/firefox/addon/betterstreamchat/
 
-## Bei Chrome manuell installieren
+## Chrome
 
-* `chrome://extensions/` öffnen
-* "Entwicklermodus" aktivieren
-* Entpackte Erweiterung laden
-* `src` Ordner auswählen
+https://chrome.google.com/webstore/detail/betterstreamchat/fjandepjjneakiclecahdlodckdkohbf
