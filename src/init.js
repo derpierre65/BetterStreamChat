@@ -307,7 +307,7 @@ const BTTV = {
 		let newText = [];
 		for (let word of split) {
 			if (this.emotes[word]) {
-				word = '<img src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" />';
+				word = '<img src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" alt="' + word + '" title="' + word + '" />';
 			}
 
 			newText.push(word);
@@ -429,7 +429,7 @@ const Trovo = {
 		const observer = new MutationObserver(function (mutations) {
 			for (let mutation of mutations) {
 				for (let node of mutation.addedNodes) {
-					handleMessage(node);
+					window.setTimeout(() => handleMessage(node), 50); // maybe dirty temp fix for stupid auto scroll
 				}
 			}
 		});
@@ -492,7 +492,7 @@ else {
 				hideAvatar: document.getElementById('trovoHideAvatar').checked,
 				timestamp: document.getElementById('trovoShowTimestamp').checked,
 				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
-				fontSize: document.getElementById('trovoFontSize').value,
+				fontSize: document.getElementById('trovoFontSize').value
 				// showRealViewers: document.getElementById('trovoShowRealViewers').checked
 			}
 		};
