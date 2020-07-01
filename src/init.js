@@ -8,6 +8,7 @@ const Helper = {
 				hideAvatar: true,
 				timestamp: true,
 				timestampSeconds: false,
+				disableGifts: false,
 				timestampFormat: 24, // 12/24
 				fontSize: 12
 			}
@@ -473,6 +474,13 @@ const Trovo = {
 			margin: 2px 0;
 		}
 		`;
+
+		if (settings.trovo.disableGifts) {
+			cssCode += `.chat-list-wrap li.message.gift-message {
+				display: none;
+			}`;
+		}
+
 		style.type = 'text/css';
 		if (typeof style.styleSheet !== 'undefined') {
 			style.styleSheet.cssText = cssCode;
@@ -516,6 +524,7 @@ else {
 				hideAvatar: document.getElementById('trovoHideAvatar').checked,
 				timestamp: document.getElementById('trovoShowTimestamp').checked,
 				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
+				disableGifts: document.getElementById('trovoDisableGifts').checked,
 				fontSize: document.getElementById('trovoFontSize').value,
 				timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
 				// showRealViewers: document.getElementById('trovoShowRealViewers').checked
@@ -537,6 +546,7 @@ else {
 			document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
 			document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
 			document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
+			document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
 			document.getElementById('trovoFontSize').value = items.trovo.fontSize;
 			document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
 			// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
