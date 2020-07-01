@@ -8,6 +8,7 @@ const Helper = {
 				hideAvatar: true,
 				timestamp: true,
 				timestampSeconds: false,
+				timestampFormat: 24, // 12/24
 				fontSize: 12
 			}
 		};
@@ -35,6 +36,32 @@ const Helper = {
 		}
 
 		return defaultColors[Math.abs(hash % defaultColors.length)];
+	},
+	getTime(date, format, showSeconds) {
+		let timestamp;
+
+		if (format === 12) {
+			let hour = date.getHours();
+			if (hour === 0) {
+				hour = 12;
+			}
+			else if (hour > 12) {
+				hour -= 12;
+			}
+
+			timestamp = ('0' + hour).slice(-2);
+		}
+		else {
+			timestamp = ('0' + date.getHours()).slice(-2);
+		}
+
+		timestamp += ':' + ('0' + date.getMinutes()).slice(-2);
+
+		if (showSeconds) {
+			timestamp += ':' + ('0' + date.getSeconds()).slice(-2);
+		}
+
+		return timestamp;
 	}
 };
 
@@ -401,10 +428,7 @@ const Trovo = {
 					let date = splits.length === 1 ? new Date() : new Date(parseInt(splits[0]));
 					span.style.fontSize = '12px';
 
-					let timestamp = date.toLocaleTimeString();
-					if (!settings.trovo.timestampSeconds) {
-						timestamp = timestamp.substr(0, timestamp.length - 3);
-					}
+					let timestamp = Helper.getTime(date, settings.trovo.timestampFormat, settings.trovo.timestampSeconds);
 
 					span.innerHTML = timestamp + '&nbsp;';
 					let contentWrap = node.querySelector('.content-wrap');
@@ -492,7 +516,8 @@ else {
 				hideAvatar: document.getElementById('trovoHideAvatar').checked,
 				timestamp: document.getElementById('trovoShowTimestamp').checked,
 				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
-				fontSize: document.getElementById('trovoFontSize').value
+				fontSize: document.getElementById('trovoFontSize').value,
+				timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
 				// showRealViewers: document.getElementById('trovoShowRealViewers').checked
 			}
 		};
@@ -513,6 +538,7 @@ else {
 			document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
 			document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
 			document.getElementById('trovoFontSize').value = items.trovo.fontSize;
+			document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
 			// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
 		});
 	}

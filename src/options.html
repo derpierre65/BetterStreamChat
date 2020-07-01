@@ -3,13 +3,13 @@
 <head>
 	<title>BetterStreamChat</title>
 	<style>
-		dt, dd {
+		h3, dt, dd {
 			padding: 0;
 			margin: 0;
 		}
 
-		dd {
-			margin: 5px;
+		dd:not(:first-child) {
+			margin-top: 5px;
 		}
 
 		body {
@@ -33,6 +33,13 @@
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="trovoShowTimestampSeconds">Show seconds in timestamp</label>
+		</dd>
+		<dt>Timestamp format</dt>
+		<dd>
+			<select id="trovoTimestampFormat">
+				<option value="12">01:33:37 (12-hour clock)</option>
+				<option value="24">13:33:37 (24-hour clock)</option>
+			</select>
 		</dd>
 		<dd style="display:none;">
 			<label><input type="checkbox" id="trovoShowRealViewers">Show real viewer number</label>
