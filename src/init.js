@@ -9,6 +9,7 @@ const Helper = {
 				splitChat: false
 			},
 			trovo: {
+				enableColors: true,
 				fullName: true,
 				hideAvatar: true,
 				timestamp: true,
@@ -205,10 +206,17 @@ const Trovo = {
 					avatar.remove();
 				}
 			}
+
+			if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
+				node.remove();
+			}
+
 			if (node.classList.contains('message-user')) {
 				let nickname = node.querySelector('.nick-name');
 				let realname = nickname.getAttribute('title');
-				nickname.style.color = Helper.getUserChatColor(realname);
+				if (settings.trovo.enableColors) {
+					nickname.style.color = Helper.getUserChatColor(realname);
+				}
 				if (settings.trovo.fullName) {
 					nickname.innerText = realname;
 				}
@@ -248,9 +256,11 @@ const Trovo = {
 				}
 			}
 
-			for (let el of node.querySelectorAll('.at.text')) {
-				let name = el.innerText.substr(1);
-				el.style.color = Helper.getUserChatColor(name);
+			if (settings.trovo.enableColors) {
+				for (let el of node.querySelectorAll('.at.text')) {
+					let name = el.innerText.substr(1);
+					el.style.color = Helper.getUserChatColor(name);
+				}
 			}
 		}
 
@@ -281,18 +291,12 @@ const Trovo = {
 	    }`;
 
 		if (settings.general.splitChat) {
-			cssCode += `.chat-list-wrap .message-user:nth-child(2n) {
-			background-color: #dcdcdc;
-	    }
-	    body.base-dark-mode .chat-list-wrap .message-user:nth-child(2n) {
-			background-color: #1f1925;
-	    }`;
-		}
-
-		if (settings.trovo.disableGifts) {
-			cssCode += `.chat-list-wrap li.message.gift-message {
-				display: none;
-			}`;
+			cssCode += `.chat-list-wrap .message:nth-child(2n) {
+				background-color: #dcdcdc;
+		    }
+		    body.base-dark-mode .chat-list-wrap .message:nth-child(2n) {
+				background-color: #1f1925;
+		    }`;
 		}
 
 		style.type = 'text/css';
@@ -350,6 +354,7 @@ let initialize = () => {
 						splitChat: document.getElementById('generalSplitChat').checked
 					},
 					trovo: {
+						enableColors: document.getElementById('trovoEnableColors').checked,
 						fullName: document.getElementById('trovoFullName').checked,
 						hideAvatar: document.getElementById('trovoHideAvatar').checked,
 						timestamp: document.getElementById('trovoShowTimestamp').checked,
@@ -368,6 +373,7 @@ let initialize = () => {
 
 			function restoreOptions() {
 				Helper.getSettings().then((items) => {
+					document.getElementById('trovoEnableColors').checked = items.trovo.enableColors;
 					document.getElementById('trovoFullName').checked = items.trovo.fullName;
 					document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
 					document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;

@@ -15,7 +15,7 @@
 		body {
 			padding: 10px;
 			background: #252830;
-			color:#cfd2da
+			color: #cfd2da
 		}
 
 		#bttvEmoteList {
@@ -118,13 +118,19 @@
 	<h2>Trovo</h2>
 	<dl>
 		<dd>
+			<label><input type="checkbox" id="trovoEnableColors">Enable colors</label>
+			<small>Enable the different chat colors for different users (like Twitch).</small>
+		</dd>
+		<dd>
 			<label><input type="checkbox" id="trovoFullName">Full name</label>
+			<small>Show complete username and don't cut the name.</small>
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="trovoHideAvatar">Hide avatar</label>
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="trovoShowTimestamp">Show timestamp</label>
+			<small>Show the timestamp before the nickname.</small>
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="trovoShowTimestampSeconds">Show seconds in timestamp</label>
