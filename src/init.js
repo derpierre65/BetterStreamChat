@@ -74,8 +74,7 @@ const Helper = {
 			return new Promise((resolve) => {
 				let bttvEmotes = items.bttvEmotes || {};
 				let bttvUsers = items.bttvUsers || {};
-				if (typeof bttvUsers.global === 'undefined' || Date.now() - bttvUsers.global.lastUpdate > 604_800_000) {
-					console.log('FETCH GLOBAL EMOTES');
+				if (typeof bttvUsers.global === 'undefined' || Date.now() - bttvUsers.global.lastUpdate > 604800000) {
 					return fetch('https://api.betterttv.net/3/cached/emotes/global').then((response) => {
 						if (response.status === 200) {
 							return response.json();
