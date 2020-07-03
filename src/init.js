@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		document.addEventListener('DOMContentLoaded', restoreOptions);
+		restoreOptions();
 		document.getElementById('save').addEventListener('click', saveOptions);
 	}
 
