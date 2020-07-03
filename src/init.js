@@ -70,21 +70,55 @@ const Helper = {
 		loaded() {
 			// do nothing - callback for option page
 		},
-		update() {
-			return new Promise((resolve) => {
+		fetchGlobalEmotes() {
+			return new Promise((resolve, reject) => {
 				chrome.storage.local.get((items) => {
-					let emotes = {};
-					for (let userID in items.bttvEmotes) {
-						if (items.bttvEmotes.hasOwnProperty(userID)) {
-							for (let emoteCode in items.bttvEmotes[userID]) {
-								if (items.bttvEmotes[userID].hasOwnProperty(emoteCode)) {
-									emotes[emoteCode] = items.bttvEmotes[userID][emoteCode];
+					let bttvEmotes = items.bttvEmotes || {};
+					let bttvUsers = items.bttvUsers || {};
+					if (typeof bttvUsers.global === 'undefined' || Date.now() - bttvUsers.global.lastUpdate > 604_800_000) {
+						console.log('FETCH GLOBAL EMOTES');
+						return fetch('https://api.betterttv.net/3/cached/emotes/global').then((response) => {
+							if (response.status === 200) {
+								return response.json();
+							}
+							else {
+								return Promise.reject();
+							}
+						}).then((data) => {
+							bttvEmotes.global = {};
+							for (let emote of data) {
+								bttvEmotes.global[emote.code] = emote.id;
+							}
+						}).finally(() => {
+							bttvUsers.global = {
+								lastUpdate: Date.now()
+							};
+							chrome.storage.local.set({ bttvUsers, bttvEmotes }, () => resolve());
+						});
+					}
+					else {
+						resolve();
+					}
+				});
+			});
+		},
+		update() {
+			return this.fetchGlobalEmotes().then(() => {
+				return new Promise((resolve) => {
+					chrome.storage.local.get((items) => {
+						let emotes = {};
+						for (let userID in items.bttvEmotes) {
+							if (items.bttvEmotes.hasOwnProperty(userID)) {
+								for (let emoteCode in items.bttvEmotes[userID]) {
+									if (items.bttvEmotes[userID].hasOwnProperty(emoteCode)) {
+										emotes[emoteCode] = items.bttvEmotes[userID][emoteCode];
+									}
 								}
 							}
 						}
-					}
-					this.emotes = emotes;
-					resolve();
+						this.emotes = emotes;
+						resolve();
+					});
 				});
 			});
 		},
@@ -261,12 +295,13 @@ const Trovo = {
 };
 
 // initialization
-document.addEventListener('DOMContentLoaded', () => {
+let initialize = () => {
 	let settingsPage = false;
 
+	// update emote list
 	Helper.BTTV.update().then(() => {
 		Helper.BTTV.loaded();
-	}); // update emote list
+	});
 
 	// init trovo
 	if (location.hostname.toLowerCase() === 'trovo.live') {
@@ -337,4 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
-});
+};
+
+if (location.hostname.toLowerCase().includes('.')) {
+	initialize();
+}
+else {
+	document.addEventListener('DOMContentLoaded', initialize);
+}

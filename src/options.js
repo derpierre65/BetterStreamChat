@@ -149,6 +149,10 @@ const Settings = {
 			});
 		},
 		addUserToList(userID, list = document.querySelector('#bttvUserList')) {
+			if (userID === 'global') {
+				return;
+			}
+
 			let user = bttvUsers[userID];
 			let li = document.createElement('li');
 			li.id = 'bttvUser' + userID;
