@@ -261,81 +261,80 @@ const Trovo = {
 };
 
 // initialization
-let settingsPage = false;
-Helper.BTTV.update().then(() => {
-	Helper.BTTV.loaded();
-}); // update emote list
+document.addEventListener('DOMContentLoaded', () => {
+	let settingsPage = false;
 
-// init trovo
-if (location.hostname.toLowerCase() === 'trovo.live') {
-	Trovo.init();
-}
-// init youtube
-else if (location.hostname.toLowerCase().includes('youtube.com')) {
-	YouTube.init();
-}
-else {
-	settingsPage = true;
+	Helper.BTTV.update().then(() => {
+		Helper.BTTV.loaded();
+	}); // update emote list
 
-	function saveOptions() {
-		let settings = {
-			trovo: {
-				fullName: document.getElementById('trovoFullName').checked,
-				hideAvatar: document.getElementById('trovoHideAvatar').checked,
-				timestamp: document.getElementById('trovoShowTimestamp').checked,
-				timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
-				disableGifts: document.getElementById('trovoDisableGifts').checked,
-				fontSize: document.getElementById('trovoFontSize').value,
-				timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
-				// showRealViewers: document.getElementById('trovoShowRealViewers').checked
-			}
-		};
+	// init trovo
+	if (location.hostname.toLowerCase() === 'trovo.live') {
+		Trovo.init();
+	}
+	// init youtube
+	else if (location.hostname.toLowerCase().includes('youtube.com')) {
+		YouTube.init();
+	}
+	else {
+		settingsPage = true;
 
-		chrome.storage[storageType].set(settings, function () {
-			let status = document.getElementById('status');
-			status.textContent = 'Options maybe saved. :)';
-			setTimeout(function () {
-				status.textContent = '';
-			}, 1500);
-		});
+		function saveOptions() {
+			let settings = {
+				trovo: {
+					fullName: document.getElementById('trovoFullName').checked,
+					hideAvatar: document.getElementById('trovoHideAvatar').checked,
+					timestamp: document.getElementById('trovoShowTimestamp').checked,
+					timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
+					disableGifts: document.getElementById('trovoDisableGifts').checked,
+					fontSize: document.getElementById('trovoFontSize').value,
+					timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
+					// showRealViewers: document.getElementById('trovoShowRealViewers').checked
+				}
+			};
+
+			chrome.storage[storageType].set(settings, function () {
+				Settings.showMessage('options maybe saved');
+			});
+		}
+
+		function restoreOptions() {
+			Helper.getSettings().then((items) => {
+				document.getElementById('trovoFullName').checked = items.trovo.fullName;
+				document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
+				document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
+				document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
+				document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
+				document.getElementById('trovoFontSize').value = items.trovo.fontSize;
+				document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
+				// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', restoreOptions);
+		document.getElementById('save').addEventListener('click', saveOptions);
 	}
 
-	function restoreOptions() {
-		Helper.getSettings().then((items) => {
-			document.getElementById('trovoFullName').checked = items.trovo.fullName;
-			document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
-			document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
-			document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
-			document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
-			document.getElementById('trovoFontSize').value = items.trovo.fontSize;
-			document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
-			// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
+	// do non settings page stuff
+	if (!settingsPage) {
+		(async function () {
+			try {
+				settings = await Helper.getSettings();
+				if (typeof settings === 'undefined') {
+					settings = Helper.getDefaultSettings();
+				}
+			}
+			catch (e) {
+				console.log('catch', e);
+			}
+		})();
+		chrome.storage.onChanged.addListener(async function (changes, namespace) {
+			if (namespace === 'local') {
+				Helper.BTTV.update(); // update emotes
+			}
+			else if (namespace === 'sync') {
+				settings = await Helper.getSettings();
+			}
 		});
 	}
-
-	document.addEventListener('DOMContentLoaded', restoreOptions);
-	document.getElementById('save').addEventListener('click', saveOptions);
-}
-
-// do non settings page stuff
-if (!settingsPage) {
-	(async function () {
-		try {
-			settings = await Helper.getSettings();
-			if (typeof settings === 'undefined') {
-				settings = Helper.getDefaultSettings();
-			}
-		}
-		catch (e) {
-			console.log('catch', e);
-		}
-	})();
-	chrome.storage.onChanged.addListener(async function (changes, namespace) {
-		if (namespace === 'local') {
-			Helper.BTTV.update(); // update emotes
-		}
-		else if (namespace === 'sync') {
-			settings = await Helper.getSettings();
-		}
-	});
-}
+});

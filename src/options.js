@@ -61,7 +61,7 @@ const Settings = {
 			messageTimeout = null;
 		};
 		statusElement.addEventListener('click', hide);
-		messageTimeout = setTimeout(hide, 5000);
+		messageTimeout = setTimeout(hide, 2000);
 	},
 	Twitch: {
 		getUserID(username) {
