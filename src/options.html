@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>BetterStreamChat</title>
+	<title>BetterStreamChat settings</title>
 	<style>
 		h3, h2, dt, dd {
 			padding: 0;
@@ -14,13 +14,15 @@
 
 		body {
 			padding: 10px;
+			background: #252830;
+			color:#cfd2da
 		}
 
 		#bttvEmoteList {
 			display: flex;
 			flex-wrap: wrap;
 			margin: 5px 0 0;
-			padding:0;
+			padding: 0;
 		}
 
 		.emoteCard img {
@@ -90,10 +92,28 @@
 			border-color: rgba(235, 204, 204, 1);
 			color: rgba(169, 68, 66, 1);
 		}
+
+		dl > dd > small {
+			color: rgba(125, 130, 135, 1);
+			display: block;
+			margin-top: 3px;
+		}
 	</style>
 </head>
 <body>
 	<div id="status"><p></p></div>
+
+	<h2>General</h2>
+	<dl>
+		<dt>highlight words</dt>
+		<dd>
+			<label><input type="text" id="generalHighlightWords" /></label>
+		</dd>
+		<dd>
+			<label><input type="checkbox" id="generalSplitChat" /> Split Chat</label>
+			<small>Alternates backgrounds between messages in chat to improve readability</small>
+		</dd>
+	</dl>
 
 	<h2>Trovo</h2>
 	<dl>

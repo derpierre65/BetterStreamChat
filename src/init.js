@@ -4,6 +4,10 @@ let storageType = 'sync';
 const Helper = {
 	getDefaultSettings() {
 		return {
+			general: {
+				highlightWords: '',
+				splitChat: false
+			},
 			trovo: {
 				fullName: true,
 				hideAvatar: true,
@@ -227,6 +231,20 @@ const Trovo = {
 					for (let el of texts) {
 						el.innerHTML = Helper.BTTV.replaceText(el.innerHTML);
 					}
+
+					// after inserted the emotes check the highlight words
+					let highlightWords = settings.general.highlightWords.split(' ');
+					let contentText = content.innerText.toLowerCase();
+
+					for (let idx = 0; idx < highlightWords.length; idx++) {
+						highlightWords[idx] = highlightWords[idx].toLowerCase();
+					}
+					for (let word of highlightWords) {
+						if (contentText.includes(word)) {
+							node.classList.add('message-highlighted');
+							break;
+						}
+					}
 				}
 			}
 
@@ -258,7 +276,18 @@ const Trovo = {
 			padding: 0;
 			margin: 2px 0;
 		}
-		`;
+		.message.message-highlighted {
+		    background-color: rgba(255, 0, 0, 0.3) !important;
+	    }`;
+
+		if (settings.general.splitChat) {
+			cssCode += `.chat-list-wrap .message-user:nth-child(2n) {
+			background-color: #dcdcdc;
+	    }
+	    body.base-dark-mode .chat-list-wrap .message-user:nth-child(2n) {
+			background-color: #1f1925;
+	    }`;
+		}
 
 		if (settings.trovo.disableGifts) {
 			cssCode += `.chat-list-wrap li.message.gift-message {
@@ -316,6 +345,10 @@ let initialize = () => {
 
 			function saveOptions() {
 				let settings = {
+					general: {
+						highlightWords: document.getElementById('generalHighlightWords').value,
+						splitChat: document.getElementById('generalSplitChat').checked
+					},
 					trovo: {
 						fullName: document.getElementById('trovoFullName').checked,
 						hideAvatar: document.getElementById('trovoHideAvatar').checked,
@@ -342,6 +375,8 @@ let initialize = () => {
 					document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
 					document.getElementById('trovoFontSize').value = items.trovo.fontSize;
 					document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
+					document.getElementById('generalHighlightWords').value = items.general.highlightWords;
+					document.getElementById('generalSplitChat').checked = items.general.splitChat;
 					// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
 				});
 			}
