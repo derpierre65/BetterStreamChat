@@ -418,24 +418,26 @@ let initialize = () => {
 			settingsPage = true;
 
 			function saveOptions() {
-				let settings = {
-					general: {
-						highlightWords: document.getElementById('generalHighlightWords').value,
-						splitChat: document.getElementById('generalSplitChat').checked
-					},
-					trovo: {
-						disabledColors: document.getElementById('trovoDisabledColors').checked,
-						experimentalScroll: document.getElementById('trovoExperimentalScroll').checked,
-						fullName: document.getElementById('trovoFullName').checked,
-						hideAvatar: document.getElementById('trovoHideAvatar').checked,
-						timestamp: document.getElementById('trovoShowTimestamp').checked,
-						timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
-						disableGifts: document.getElementById('trovoDisableGifts').checked,
-						fontSize: document.getElementById('trovoFontSize').value,
-						timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
-						// showRealViewers: document.getElementById('trovoShowRealViewers').checked
+				let settings = {};
+				for (let option of document.querySelectorAll('.option')) {
+					let split = option.dataset.name.split('_');
+					if (!settings[split[0]]) {
+						settings[split[0]] = {};
 					}
-				};
+
+					let value = null;
+					if (option.type === 'checkbox') {
+						value = option.checked;
+					}
+					else if (option.dataset.type === 'number' || option.type === 'number') {
+						value = parseFloat(option.value);
+					}
+					else {
+						value = option.value;
+					}
+
+					settings[split[0]][split[1]] = value;
+				}
 
 				chrome.storage[storageType].set(settings, function () {
 					Settings.showMessage('options maybe saved');
@@ -444,18 +446,12 @@ let initialize = () => {
 
 			function restoreOptions() {
 				Helper.getSettings().then((items) => {
-					document.getElementById('trovoDisabledColors').checked = items.trovo.disabledColors;
-					document.getElementById('trovoExperimentalScroll').checked = items.trovo.experimentalScroll;
-					document.getElementById('trovoFullName').checked = items.trovo.fullName;
-					document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
-					document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
-					document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
-					document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
-					document.getElementById('trovoFontSize').value = items.trovo.fontSize;
-					document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
-					document.getElementById('generalHighlightWords').value = items.general.highlightWords;
-					document.getElementById('generalSplitChat').checked = items.general.splitChat;
-					// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
+					for (let option of document.querySelectorAll('.option')) {
+						console.log(option.type);
+						let property = option.type === 'checkbox' ? 'checked' : 'value';
+						let split = option.dataset.name.split('_');
+						option[property] = items[split[0]][split[1]];
+					}
 				});
 			}
 

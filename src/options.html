@@ -107,11 +107,11 @@
 	<dl>
 		<dt>highlight words</dt>
 		<dd>
-			<label><input type="text" id="generalHighlightWords" /></label>
+			<label><input type="text" class="option" data-name="general_highlightWords" /></label>
 			<small>Use spaces in the field to specify multiple keywords.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="generalSplitChat" /> Split Chat</label>
+			<label><input type="checkbox" class="option" data-name="general_splitChat" /> Split Chat</label>
 			<small>Alternates backgrounds between messages in chat to improve readability</small>
 		</dd>
 	</dl>
@@ -119,43 +119,43 @@
 	<h2>Trovo</h2>
 	<dl>
 		<dd>
-			<label><input type="checkbox" id="trovoDisabledColors">Disable colors</label>
+			<label><input type="checkbox" class="option" data-name="trovo_disabledColors">Disable colors</label>
 			<small>Disable the different chat colors for users.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoExperimentalScroll">Enable new scroll fix</label>
+			<label><input type="checkbox" class="option" data-name="trovo_experimentalScroll">Enable new scroll fix</label>
 			<small>This is the future scroll fix for the trovo scroll issue, you can test the new fix with this option.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoFullName">Full name</label>
+			<label><input type="checkbox" class="option" data-name="trovo_fullName">Full name</label>
 			<small>Show complete username and don't cut the name.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoHideAvatar">Hide avatar</label>
+			<label><input type="checkbox" class="option" data-name="trovo_hideAvatar">Hide avatar</label>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoShowTimestamp">Show timestamp</label>
+			<label><input type="checkbox" class="option" data-name="trovo_showTimestamp">Show timestamp</label>
 			<small>Show the timestamp before the nickname.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoShowTimestampSeconds">Show seconds in timestamp</label>
+			<label><input type="checkbox" class="option" data-name="trovo_showTimestampSeconds">Show seconds in timestamp</label>
 		</dd>
 		<dd>
-			<label><input type="checkbox" id="trovoDisableGifts">Disable gift messages</label>
+			<label><input type="checkbox" class="option" data-name="trovo_disableGifts">Disable gift messages</label>
 		</dd>
 		<dt>Timestamp format</dt>
 		<dd>
-			<select id="trovoTimestampFormat">
+			<select class="option" data-name="trovo_timestampFormat" data-type="number">
 				<option value="12">01:33:37 (12-hour clock)</option>
 				<option value="24">13:33:37 (24-hour clock)</option>
 			</select>
 		</dd>
 		<dd style="display:none;">
-			<label><input type="checkbox" id="trovoShowRealViewers">Show real viewer number</label>
+			<label><input type="checkbox" class="option" data-name="trovo_showRealViewers">Show real viewer number</label>
 		</dd>
 		<dt>Message font size</dt>
 		<dd>
-			<input type="number" min="6" max="40" id="trovoFontSize" />
+			<input type="number" min="6" max="40" class="option" data-name="trovo_fontSize" />
 		</dd>
 	</dl>
 
