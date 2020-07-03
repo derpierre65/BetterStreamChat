@@ -24,7 +24,6 @@
 		"open_in_tab": true
 	},
 	"permissions": [
-		"storage",
-		"https://api.betterttv.net/3/*"
+		"storage"
 	]
 }

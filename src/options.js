@@ -106,6 +106,7 @@ const Settings = {
 		},
 		addUser() {
 			let userElement = document.querySelector('#bttvAddUser');
+			let button = document.querySelector('#bttvAddUserBtn');
 			let username = userElement.value.trim();
 			if (!username.length) {
 				return;
@@ -115,13 +116,15 @@ const Settings = {
 				return;
 			}
 
-			userElement.setAttribute('disabled', true);
+			userElement.setAttribute('disabled', 'disabled');
+			button.setAttribute('disabled', 'disabled');
 			isBusy = true;
 			let beforeEmotes = Object.keys(Helper.BTTV.emotes).length;
 			let userID;
 			Settings.Twitch.getUserID(username).then((data) => {
 				if (data.length) {
 					userID = data[0]._id;
+					username = data[0].display_name;
 					if (typeof bttvUsers[userID] !== 'undefined') {
 						return Promise.reject('User already in list');
 					}
@@ -135,13 +138,13 @@ const Settings = {
 				return Helper.BTTV.update().then(() => Helper.BTTV.loaded());
 			}).then(() => {
 				let newEmotes = Object.keys(Helper.BTTV.emotes).length - beforeEmotes;
-				Settings.showMessage('User added and ' + newEmotes + ' new emotes.');
-			}).then(() => {}).catch((err) => {
-				console.debug('fehler....', err);
+				Settings.showMessage('User ' + username + ' and ' + newEmotes + ' emotes added.');
+			}).catch((err) => {
 				Settings.showMessage(err, 'error');
 			}).finally(() => {
 				userElement.value = '';
 				userElement.removeAttribute('disabled');
+				button.removeAttribute('disabled');
 				isBusy = false;
 			});
 		},
