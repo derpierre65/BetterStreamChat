@@ -303,56 +303,67 @@ let initialize = () => {
 		Helper.BTTV.loaded();
 	});
 
-	// init trovo
-	if (location.hostname.toLowerCase() === 'trovo.live') {
-		Trovo.init();
-	}
-	// init youtube
-	else if (location.hostname.toLowerCase().includes('youtube.com')) {
-		YouTube.init();
-	}
-	else {
-		settingsPage = true;
-
-		function saveOptions() {
-			let settings = {
-				trovo: {
-					fullName: document.getElementById('trovoFullName').checked,
-					hideAvatar: document.getElementById('trovoHideAvatar').checked,
-					timestamp: document.getElementById('trovoShowTimestamp').checked,
-					timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
-					disableGifts: document.getElementById('trovoDisableGifts').checked,
-					fontSize: document.getElementById('trovoFontSize').value,
-					timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
-					// showRealViewers: document.getElementById('trovoShowRealViewers').checked
-				}
-			};
-
-			chrome.storage[storageType].set(settings, function () {
-				Settings.showMessage('options maybe saved');
-			});
+	const start = () => {
+		// init trovo
+		if (location.hostname.toLowerCase() === 'trovo.live') {
+			Trovo.init();
 		}
-
-		function restoreOptions() {
-			Helper.getSettings().then((items) => {
-				document.getElementById('trovoFullName').checked = items.trovo.fullName;
-				document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
-				document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
-				document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
-				document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
-				document.getElementById('trovoFontSize').value = items.trovo.fontSize;
-				document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
-				// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
-			});
+		// init youtube
+		else if (location.hostname.toLowerCase().includes('youtube.com')) {
+			YouTube.init();
 		}
+		else {
+			settingsPage = true;
 
-		restoreOptions();
-		document.getElementById('save').addEventListener('click', saveOptions);
-	}
+			function saveOptions() {
+				let settings = {
+					trovo: {
+						fullName: document.getElementById('trovoFullName').checked,
+						hideAvatar: document.getElementById('trovoHideAvatar').checked,
+						timestamp: document.getElementById('trovoShowTimestamp').checked,
+						timestampSeconds: document.getElementById('trovoShowTimestampSeconds').checked,
+						disableGifts: document.getElementById('trovoDisableGifts').checked,
+						fontSize: document.getElementById('trovoFontSize').value,
+						timestampFormat: parseInt(document.getElementById('trovoTimestampFormat').value)
+						// showRealViewers: document.getElementById('trovoShowRealViewers').checked
+					}
+				};
+
+				chrome.storage[storageType].set(settings, function () {
+					Settings.showMessage('options maybe saved');
+				});
+			}
+
+			function restoreOptions() {
+				Helper.getSettings().then((items) => {
+					document.getElementById('trovoFullName').checked = items.trovo.fullName;
+					document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
+					document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
+					document.getElementById('trovoShowTimestampSeconds').checked = items.trovo.timestampSeconds;
+					document.getElementById('trovoDisableGifts').checked = items.trovo.disableGifts;
+					document.getElementById('trovoFontSize').value = items.trovo.fontSize;
+					document.getElementById('trovoTimestampFormat').value = items.trovo.timestampFormat;
+					// document.getElementById('trovoShowRealViewers').checked = items.trovo.showRealViewers;
+				});
+			}
+
+			restoreOptions();
+			document.getElementById('save').addEventListener('click', saveOptions);
+		}
+	};
 
 	// do non settings page stuff
 	if (!settingsPage) {
 		(async function () {
+			chrome.storage.onChanged.addListener(async function (changes, namespace) {
+				if (namespace === 'local') {
+					Helper.BTTV.update(); // update emotes
+				}
+				else if (namespace === 'sync') {
+					settings = await Helper.getSettings();
+				}
+			});
+
 			try {
 				settings = await Helper.getSettings();
 				if (typeof settings === 'undefined') {
@@ -362,15 +373,9 @@ let initialize = () => {
 			catch (e) {
 				console.log('catch', e);
 			}
+
+			start();
 		})();
-		chrome.storage.onChanged.addListener(async function (changes, namespace) {
-			if (namespace === 'local') {
-				Helper.BTTV.update(); // update emotes
-			}
-			else if (namespace === 'sync') {
-				settings = await Helper.getSettings();
-			}
-		});
 	}
 };
 
