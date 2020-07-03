@@ -70,42 +70,42 @@ const Helper = {
 		loaded() {
 			// do nothing - callback for option page
 		},
-		fetchGlobalEmotes() {
-			return new Promise((resolve, reject) => {
-				chrome.storage.local.get((items) => {
-					let bttvEmotes = items.bttvEmotes || {};
-					let bttvUsers = items.bttvUsers || {};
-					if (typeof bttvUsers.global === 'undefined' || Date.now() - bttvUsers.global.lastUpdate > 604_800_000) {
-						console.log('FETCH GLOBAL EMOTES');
-						return fetch('https://api.betterttv.net/3/cached/emotes/global').then((response) => {
-							if (response.status === 200) {
-								return response.json();
-							}
-							else {
-								return Promise.reject();
-							}
-						}).then((data) => {
-							bttvEmotes.global = {};
-							for (let emote of data) {
-								bttvEmotes.global[emote.code] = emote.id;
-							}
-						}).finally(() => {
-							bttvUsers.global = {
-								lastUpdate: Date.now()
-							};
-							chrome.storage.local.set({ bttvUsers, bttvEmotes }, () => resolve());
-						});
-					}
-					else {
-						resolve();
-					}
-				});
+		fetchGlobalEmotes(items) {
+			return new Promise((resolve) => {
+				let bttvEmotes = items.bttvEmotes || {};
+				let bttvUsers = items.bttvUsers || {};
+				if (typeof bttvUsers.global === 'undefined' || Date.now() - bttvUsers.global.lastUpdate > 604_800_000) {
+					console.log('FETCH GLOBAL EMOTES');
+					return fetch('https://api.betterttv.net/3/cached/emotes/global').then((response) => {
+						if (response.status === 200) {
+							return response.json();
+						}
+						else {
+							return Promise.reject();
+						}
+					}).then((data) => {
+						bttvEmotes.global = {};
+						for (let emote of data) {
+							bttvEmotes.global[emote.code] = emote.id;
+						}
+					}).finally(() => {
+						bttvUsers.global = {
+							lastUpdate: Date.now()
+						};
+						items.bttvUsers = bttvUsers;
+						items.bttvEmotes = bttvEmotes;
+						chrome.storage.local.set({ bttvUsers, bttvEmotes }, () => resolve());
+					});
+				}
+				else {
+					resolve();
+				}
 			});
 		},
 		update() {
-			return this.fetchGlobalEmotes().then(() => {
-				return new Promise((resolve) => {
-					chrome.storage.local.get((items) => {
+			return new Promise((resolve) => {
+				chrome.storage.local.get((items) => {
+					this.fetchGlobalEmotes(items).finally(() => {
 						let emotes = {};
 						for (let userID in items.bttvEmotes) {
 							if (items.bttvEmotes.hasOwnProperty(userID)) {
