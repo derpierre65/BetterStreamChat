@@ -108,6 +108,7 @@
 		<dt>highlight words</dt>
 		<dd>
 			<label><input type="text" id="generalHighlightWords" /></label>
+			<small>Use spaces in the field to specify multiple keywords.</small>
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="generalSplitChat" /> Split Chat</label>
@@ -118,8 +119,12 @@
 	<h2>Trovo</h2>
 	<dl>
 		<dd>
-			<label><input type="checkbox" id="trovoEnableColors">Enable colors</label>
-			<small>Enable the different chat colors for different users (like Twitch).</small>
+			<label><input type="checkbox" id="trovoDisabledColors">Disable colors</label>
+			<small>Disable the different chat colors for users.</small>
+		</dd>
+		<dd>
+			<label><input type="checkbox" id="trovoExperimentalScroll">Enable new scroll fix</label>
+			<small>This is the future scroll fix for the trovo scroll issue, you can test the new fix with this option.</small>
 		</dd>
 		<dd>
 			<label><input type="checkbox" id="trovoFullName">Full name</label>

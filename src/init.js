@@ -1,6 +1,8 @@
 let defaultColors = ['#FF0000', '#00FF00', '#B22222', '#FF7F50', '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E', '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'];
 let storageType = 'sync';
 
+let twitchGlobalEmotes = {};
+
 const Helper = {
 	getDefaultSettings() {
 		return {
@@ -9,7 +11,8 @@ const Helper = {
 				splitChat: false
 			},
 			trovo: {
-				enableColors: true,
+				disabledColors: false,
+				experimentalScroll: false,
 				fullName: true,
 				hideAvatar: true,
 				timestamp: true,
@@ -70,10 +73,54 @@ const Helper = {
 
 		return timestamp;
 	},
+	Twitch: {
+		fetchGlobalEmotes(items) {
+			return new Promise((resolve) => {
+				let done = () => {
+					twitchGlobalEmotes = items.globalTwitchEmotes.emotes;
+					resolve();
+				};
+
+				if (typeof items.globalTwitchEmotes === 'undefined' || items.globalTwitchEmotes === null || Date.now() - items.globalTwitchEmotes.lastUpdate > 604800000) {
+					setTimeout(() => {
+						fetch('https://api.twitchemotes.com/api/v4/channels/0').then((response) => {
+							if (response.status === 200) {
+								return response.json();
+							}
+							else {
+								return Promise.reject();
+							}
+						}).then((data) => {
+							items.globalTwitchEmotes = {
+								lastUpdate: Date.now(),
+								emotes: {}
+							};
+							for (let emote of data.emotes) {
+								if (emote.code.match(/^[a-zA-Z0-9]+$/)) {
+									items.globalTwitchEmotes.emotes[emote.code] = emote.id;
+								}
+							}
+							chrome.storage.local.set({ globalTwitchEmotes: items.globalTwitchEmotes }, () => done());
+						}).catch(done);
+					}, 1500);
+				}
+				else {
+					done();
+				}
+			});
+		}
+	},
 	BTTV: {
 		emotes: {},
 		loaded() {
-			// do nothing - callback for option page
+			chrome.storage.onChanged.addListener(async function (changes, namespace) {
+				if (namespace === 'local') {
+					Helper.BTTV.update(); // update emotes
+				}
+				else if (namespace === 'sync') {
+					settings = await Helper.getSettings();
+				}
+			});
 		},
 		fetchGlobalEmotes(items) {
 			return new Promise((resolve) => {
@@ -109,19 +156,21 @@ const Helper = {
 		update() {
 			return new Promise((resolve) => {
 				chrome.storage.local.get((items) => {
-					this.fetchGlobalEmotes(items).finally(() => {
-						let emotes = {};
-						for (let userID in items.bttvEmotes) {
-							if (items.bttvEmotes.hasOwnProperty(userID)) {
-								for (let emoteCode in items.bttvEmotes[userID]) {
-									if (items.bttvEmotes[userID].hasOwnProperty(emoteCode)) {
-										emotes[emoteCode] = items.bttvEmotes[userID][emoteCode];
+					Helper.Twitch.fetchGlobalEmotes(items).finally(() => {
+						this.fetchGlobalEmotes(items).finally(() => {
+							let emotes = {};
+							for (let userID in items.bttvEmotes) {
+								if (items.bttvEmotes.hasOwnProperty(userID)) {
+									for (let emoteCode in items.bttvEmotes[userID]) {
+										if (items.bttvEmotes[userID].hasOwnProperty(emoteCode)) {
+											emotes[emoteCode] = items.bttvEmotes[userID][emoteCode];
+										}
 									}
 								}
 							}
-						}
-						this.emotes = emotes;
-						resolve();
+							this.emotes = emotes;
+							resolve();
+						});
 					});
 				});
 			});
@@ -132,6 +181,9 @@ const Helper = {
 			for (let word of split) {
 				if (this.emotes[word]) {
 					word = '<img src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" alt="' + word + '" title="' + word + '" />';
+				}
+				else if (twitchGlobalEmotes[word]) {
+					word = '<img src="https://static-cdn.jtvnw.net/emoticons/v1/' + twitchGlobalEmotes[word] + '/1.0" alt="' + word + '" title="' + word + '" />';
 				}
 
 				newText.push(word);
@@ -214,7 +266,7 @@ const Trovo = {
 			if (node.classList.contains('message-user')) {
 				let nickname = node.querySelector('.nick-name');
 				let realname = nickname.getAttribute('title');
-				if (settings.trovo.enableColors) {
+				if (!settings.trovo.disabledColors) {
 					nickname.style.color = Helper.getUserChatColor(realname);
 				}
 				if (settings.trovo.fullName) {
@@ -241,22 +293,25 @@ const Trovo = {
 					}
 
 					// after inserted the emotes check the highlight words
-					let highlightWords = settings.general.highlightWords.split(' ');
+					let highlightWords = settings.general.highlightWords.trim().split(' ');
 					let contentText = content.innerText.toLowerCase();
 
-					for (let idx = 0; idx < highlightWords.length; idx++) {
-						highlightWords[idx] = highlightWords[idx].toLowerCase();
-					}
-					for (let word of highlightWords) {
-						if (contentText.includes(word)) {
-							node.classList.add('message-highlighted');
-							break;
+					if (highlightWords.length > 1 || highlightWords[0].length !== 0) {
+						for (let idx = 0; idx < highlightWords.length; idx++) {
+							highlightWords[idx] = highlightWords[idx].toLowerCase().trim();
+						}
+
+						for (let word of highlightWords) {
+							if (word.length && contentText.includes(word)) {
+								node.classList.add('message-highlighted');
+								break;
+							}
 						}
 					}
 				}
 			}
 
-			if (settings.trovo.enableColors) {
+			if (!settings.trovo.disabledColors) {
 				for (let el of node.querySelectorAll('.at.text')) {
 					let name = el.innerText.substr(1);
 					el.style.color = Helper.getUserChatColor(name);
@@ -267,7 +322,22 @@ const Trovo = {
 		const observer = new MutationObserver(function (mutations) {
 			for (let mutation of mutations) {
 				for (let node of mutation.addedNodes) {
-					window.setTimeout(() => handleMessage(node), 50); // maybe dirty temp fix for stupid auto scroll
+					if (settings.trovo.experimentalScroll) {
+						handleMessage(node);
+					}
+					else {
+						window.setTimeout(() => handleMessage(node), 50); // maybe dirty temp fix for stupid auto scroll
+					}
+				}
+			}
+
+			if (settings.trovo.experimentalScroll) {
+				let chatList = document.querySelector('.chat-list-wrap');
+				if (chatList.scrollHeight - chatList.scrollTop - chatList.offsetHeight === 0) {
+					let readMoreButton = document.querySelector('.read-tip');
+					if (readMoreButton) {
+						readMoreButton.click();
+					}
 				}
 			}
 		});
@@ -354,7 +424,8 @@ let initialize = () => {
 						splitChat: document.getElementById('generalSplitChat').checked
 					},
 					trovo: {
-						enableColors: document.getElementById('trovoEnableColors').checked,
+						disabledColors: document.getElementById('trovoDisabledColors').checked,
+						experimentalScroll: document.getElementById('trovoExperimentalScroll').checked,
 						fullName: document.getElementById('trovoFullName').checked,
 						hideAvatar: document.getElementById('trovoHideAvatar').checked,
 						timestamp: document.getElementById('trovoShowTimestamp').checked,
@@ -373,7 +444,8 @@ let initialize = () => {
 
 			function restoreOptions() {
 				Helper.getSettings().then((items) => {
-					document.getElementById('trovoEnableColors').checked = items.trovo.enableColors;
+					document.getElementById('trovoDisabledColors').checked = items.trovo.disabledColors;
+					document.getElementById('trovoExperimentalScroll').checked = items.trovo.experimentalScroll;
 					document.getElementById('trovoFullName').checked = items.trovo.fullName;
 					document.getElementById('trovoHideAvatar').checked = items.trovo.hideAvatar;
 					document.getElementById('trovoShowTimestamp').checked = items.trovo.timestamp;
@@ -395,15 +467,6 @@ let initialize = () => {
 	// do non settings page stuff
 	if (!settingsPage) {
 		(async function () {
-			chrome.storage.onChanged.addListener(async function (changes, namespace) {
-				if (namespace === 'local') {
-					Helper.BTTV.update(); // update emotes
-				}
-				else if (namespace === 'sync') {
-					settings = await Helper.getSettings();
-				}
-			});
-
 			try {
 				settings = await Helper.getSettings();
 				if (typeof settings === 'undefined') {

@@ -7,7 +7,7 @@ let messageTimeout;
 const Settings = {
 	// debug method
 	reset() {
-		chrome.storage.local.set({ bttvUsers: {}, bttvEmotes: {} }, () => {
+		chrome.storage.local.set({ bttvUsers: {}, bttvEmotes: {}, globalTwitchEmotes: null }, () => {
 			bttvUsers = {};
 			bttvEmotes = {};
 		});
