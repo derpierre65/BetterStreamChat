@@ -3,24 +3,100 @@
 <head>
 	<title>BetterStreamChat</title>
 	<style>
-		h3, dt, dd {
+		h3, h2, dt, dd {
 			padding: 0;
 			margin: 0;
 		}
 
-		dd:not(:first-child) {
+		dt:not(:first-child), dd:not(:first-child) {
 			margin-top: 5px;
 		}
 
 		body {
 			padding: 10px;
 		}
+
+		#bttvEmoteList {
+			display: flex;
+			flex-wrap: wrap;
+			margin: 5px 0 0;
+		}
+
+		.emoteCard img {
+			width: 56px;
+			height: 56px;
+			margin-bottom: 8px;
+		}
+
+		.emoteCard span {
+			font-size: 14px;
+			line-height: 16px;
+		}
+
+		.emoteCard {
+			width: 100px;
+			margin-right: 5px;
+			margin-bottom: 5px;
+			background-color: #434857;
+			border-radius: 5px;
+			align-items: center;
+			flex-direction: column;
+			display: flex;
+			padding: 20px 10px;
+			color: #cfd2da;
+		}
+
+		#status {
+			left: 0;
+			opacity: 0;
+			pointer-events: none;
+			position: fixed;
+			top: 0;
+			transform: translateY(-100%);
+			transition: visibility 0.12s linear 0.12s, transform 0.12s linear, opacity 0.12s linear;
+			visibility: hidden;
+			width: 100%;
+			z-index: 460;
+		}
+
+		#status.active {
+			opacity: 1;
+			transform: translateY(0%);
+			transition-delay: 0s;
+			visibility: visible;
+		}
+
+		#status > p {
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+			border-top-width: 0;
+			cursor: pointer;
+			display: table;
+			margin: 0 auto;
+			max-width: 80%;
+			pointer-events: auto;
+			padding: 10px;
+		}
+
+		.success {
+			background-color: rgba(223, 240, 216, 1);
+			border-color: rgba(208, 233, 198, 1);
+			color: rgba(60, 118, 61, 1);
+		}
+
+		.error {
+			background-color: rgba(242, 222, 222, 1);
+			border-color: rgba(235, 204, 204, 1);
+			color: rgba(169, 68, 66, 1);
+		}
 	</style>
 </head>
 <body>
-	<div id="status"></div>
+	<div id="status">
+		<p class="error"></p>
+	</div>
 
-	<h3>Trovo</h3>
+	<h2>Trovo</h2>
 	<dl>
 		<dd>
 			<label><input type="checkbox" id="trovoFullName">Full name</label>
@@ -53,13 +129,31 @@
 		</dd>
 	</dl>
 
-	<h3>YouTube</h3>
+	<h2>YouTube</h2>
 	<dl>
 		<dt>coming soon</dt>
 	</dl>
 
-	<br />
-	<button id="save">Save</button>
-	<script src="init.js" type="module"></script>
+	<div>
+		<h2>BetterTTV (experimental)</h2>
+		<h3>Users</h3>
+		<ul id="bttvUserList"></ul>
+
+		<div>
+			<input type="text" id="bttvAddUser" />
+			<button id="bttvAddUserBtn">+</button>
+		</div>
+
+		<small>ability to update/remove user coming soon</small>
+	</div>
+
+	<button id="save" style="margin-top:30px;">Save</button>
+
+	<h2 style="margin-top:50px;">Available BetterTTV emotes</h2>
+	<ul id="bttvEmoteList"></ul>
+
+
+	<script src="init.js"></script>
+	<script src="options.js"></script>
 </body>
 </html>
