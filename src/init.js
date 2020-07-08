@@ -11,7 +11,8 @@ const Helper = {
 				splitChat: false
 			},
 			trovo: {
-				disabledColors: false,
+				enabled: true,
+				enabledColors: true,
 				experimentalScroll: false,
 				fullName: true,
 				hideAvatar: true,
@@ -20,13 +21,26 @@ const Helper = {
 				disableGifts: false,
 				timestampFormat: 24, // 12/24
 				fontSize: 12
+			},
+			youtube: {
+				enabled: true
 			}
 		};
 	},
 	getSettings() {
 		return new Promise((resolve, reject) => {
 			if (typeof chrome !== 'undefined') {
-				chrome.storage[storageType].get(this.getDefaultSettings(), resolve);
+				chrome.storage[storageType].get((items) => {
+					let defaultSettings = this.getDefaultSettings();
+					items = items || {};
+					// deep Object.assign
+					for (let key in defaultSettings) {
+						if (defaultSettings.hasOwnProperty(key)) {
+							items[key] = Object.assign(defaultSettings[key], items[key] || {});
+						}
+					}
+					resolve(items);
+				});
 			}
 			else {
 				reject('browser not supported?');
@@ -199,6 +213,10 @@ let settings = Helper.getDefaultSettings();
 // youtube stuff
 const YouTube = {
 	init() {
+		if (!settings.youtube.enabled) {
+			return;
+		}
+
 		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
 
 		function init(documentElement, target) {
@@ -251,6 +269,10 @@ const YouTube = {
 // trovo stuff
 const Trovo = {
 	async init() {
+		if (!settings.trovo.enabled) {
+			return;
+		}
+
 		function handleMessage(node) {
 			if (settings.trovo.hideAvatar) {
 				let avatar = node.querySelector('.avatar');
@@ -397,84 +419,77 @@ const Trovo = {
 };
 
 // initialization
-let initialize = () => {
-	let settingsPage = false;
-
+let initialize = async () => {
 	// update emote list
 	Helper.BTTV.update().then(() => {
 		Helper.BTTV.loaded();
 	});
 
-	const start = () => {
-		// init trovo
-		if (location.hostname.toLowerCase() === 'trovo.live') {
-			Trovo.init();
-		}
-		// init youtube
-		else if (location.hostname.toLowerCase().includes('youtube.com')) {
-			YouTube.init();
-		}
-		else {
-			settingsPage = true;
-
-			function saveOptions() {
-				let settings = {};
-				for (let option of document.querySelectorAll('.option')) {
-					let split = option.dataset.name.split('_');
-					if (!settings[split[0]]) {
-						settings[split[0]] = {};
-					}
-
-					let value = null;
-					if (option.type === 'checkbox') {
-						value = option.checked;
-					}
-					else if (option.dataset.type === 'number' || option.type === 'number') {
-						value = parseFloat(option.value);
-					}
-					else {
-						value = option.value;
-					}
-
-					settings[split[0]][split[1]] = value;
-				}
-
-				chrome.storage[storageType].set(settings, function () {
-					Settings.showMessage('options maybe saved');
-				});
-			}
-
-			function restoreOptions() {
-				Helper.getSettings().then((items) => {
-					for (let option of document.querySelectorAll('.option')) {
-						console.log(option.type);
-						let property = option.type === 'checkbox' ? 'checked' : 'value';
-						let split = option.dataset.name.split('_');
-						option[property] = items[split[0]][split[1]];
-					}
-				});
-			}
-
-			restoreOptions();
-			document.getElementById('save').addEventListener('click', saveOptions);
-		}
-	};
-
 	// do non settings page stuff
-	if (!settingsPage) {
-		(async function () {
-			try {
-				settings = await Helper.getSettings();
-				if (typeof settings === 'undefined') {
-					settings = Helper.getDefaultSettings();
+	try {
+		settings = await Helper.getSettings();
+		if (typeof settings === 'undefined') {
+			settings = Helper.getDefaultSettings();
+		}
+	}
+	catch (e) {
+		console.log('catch', e);
+	}
+
+	// init trovo
+	if (location.hostname.toLowerCase() === 'trovo.live') {
+		await Trovo.init();
+	}
+	// init youtube
+	else if (location.hostname.toLowerCase().includes('youtube.com')) {
+		YouTube.init();
+	}
+	else {
+		for (let option of document.querySelectorAll('.option')) {
+			let property = option.type === 'checkbox' ? 'checked' : 'value';
+			let split = option.dataset.name.split('_');
+			option[property] = settings[split[0]][split[1]];
+		}
+
+		for (let element of document.querySelectorAll('.enableOption')) {
+			let changedEvent = () => {
+				if (element.dataset.name) {
+					let streamPlatform = element.dataset.name.split('_')[0];
+					document.querySelector(`#${streamPlatform}Settings`).style.display = element.checked ? 'block' : 'none';
 				}
-			}
-			catch (e) {
-				console.log('catch', e);
+			};
+			element.addEventListener('change', changedEvent);
+			changedEvent();
+		}
+
+		document.body.style.display = '';
+
+		document.getElementById('save').addEventListener('click', () => {
+			let settings = {};
+			for (let option of document.querySelectorAll('.option')) {
+				let split = option.dataset.name.split('_');
+				if (!settings[split[0]]) {
+					settings[split[0]] = {};
+				}
+
+				let value = null;
+				if (option.type === 'checkbox') {
+					value = option.checked;
+				}
+				else if (option.dataset.type === 'number' || option.type === 'number') {
+					value = parseFloat(option.value);
+				}
+				else {
+					value = option.value;
+				}
+
+				settings[split[0]][split[1]] = value;
 			}
 
-			start();
-		})();
+			chrome.storage[storageType].set(settings, function () {
+				Settings.showMessage('options maybe saved');
+			});
+		});
 	}
 };
 
