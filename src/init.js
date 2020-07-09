@@ -797,7 +797,7 @@ const BetterStreamChat = {
 	    <main class="text" data-tab="about">
             soon
 		</main>
-		<main class="${activeTab === "general" ? "active" : ""}" data-tab="general">
+		<main class="${activeTab.localeCompare("general") === 0 ? "active" : ""}" data-tab="general">
 			${Helper.Settings.build('general')}
 		</main>
 		<main class="text" data-tab="bttvSettings">
@@ -815,10 +815,10 @@ const BetterStreamChat = {
 			<h2>Available BetterTTV emotes</h2>
 			<ul id="bttvEmoteList"></ul>
 		</main>
-		<main class="${activeTab == "trovo" ? "active" : ""}" data-tab="trovoSettings">
+		<main class="${activeTab.localeCompare("trovo") === 0 ? "active" : ""}" data-tab="trovoSettings">
 			${Helper.Settings.build('trovo')}
 		</main>
-		<main class="${activeTab == "youtube" ? "active" : ""}" data-tab="youtubeSettings">
+		<main class="${activeTab.localeCompare("youtube") === 0 ? "active" : ""}" data-tab="youtubeSettings">
 			${Helper.Settings.build('youtube')}
 		</main>
 	    <main class="text" data-tab="changelog">
