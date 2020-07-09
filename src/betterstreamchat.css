@@ -109,7 +109,7 @@ body.trovo {
 
 #bscSettingsPanel main .option .formField {
 	flex: 0 0 auto;
-	margin-right: 20px;
+	margin-right: 10px;
 }
 
 #bscSettingsPanel main .option .labelField > .title {
@@ -196,6 +196,51 @@ body.trovo {
 #bscSettingsPanel button {
 	background: var(--color-bsc);
 	padding: 3px 10px;
+}
+
+#bscSettingsPanel #status {
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+	position: fixed;
+	top: 0;
+	transform: translateY(-100%);
+	transition: visibility 0.12s linear 0.12s, transform 0.12s linear, opacity 0.12s linear;
+	visibility: hidden;
+	width: 100%;
+	z-index: 460;
+}
+
+#bscSettingsPanel #status.active {
+	opacity: 1;
+	transform: translateY(0%);
+	transition-delay: 0s;
+	visibility: visible;
+}
+
+#bscSettingsPanel #status > p {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-top-width: 0;
+	cursor: pointer;
+	display: table;
+	margin: 0 auto;
+	max-width: 80%;
+	pointer-events: auto;
+}
+
+#bscSettingsPanel .success {
+	background-color: rgba(223, 240, 216, 1);
+	border-color: rgba(208, 233, 198, 1);
+	color: rgba(60, 118, 61, 1);
+	padding: 10px;
+}
+
+#bscSettingsPanel .error {
+	background-color: rgba(242, 222, 222, 1);
+	border-color: rgba(235, 204, 204, 1);
+	color: rgba(169, 68, 66, 1);
+	padding: 10px;
 }
 
 /* footer */

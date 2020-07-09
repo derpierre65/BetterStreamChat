@@ -342,12 +342,10 @@ const Helper = {
 			}).then(() => {
 				return Helper.BTTV.update();
 			}).then(() => {
-				console.log('ok!');
-				// let newEmotes = Object.keys(Helper.BTTV.emotes).length - beforeEmotes;
-				// Settings.showMessage('User ' + username + ' and ' + newEmotes + ' emotes added.');
+				let newEmotes = Object.keys(Helper.BTTV.emotes).length - beforeEmotes;
+				Helper.Settings.showMessage('User ' + username + ' and ' + newEmotes + ' emotes added.');
 			}).catch((err) => {
-				console.log('ERROR!', err);
-				// Settings.showMessage(err, 'error');
+				Helper.Settings.showMessage(err, 'error');
 			}).finally(() => {
 				userElement.value = '';
 				userElement.removeAttribute('disabled');
@@ -369,6 +367,7 @@ const Helper = {
 		}
 	},
 	Settings: {
+		messageTimeout: null,
 		availableSettings: {
 			general: {
 				highlightWords: {
@@ -379,9 +378,16 @@ const Helper = {
 			},
 			trovo: {
 				enabled: {
-					title: 'Trovo',
-					// description: '',
-					type: 'boolean'
+					title: 'Trovo settings',
+					type: 'boolean',
+					onChange: (newValue) => {
+						if (newValue && !BetterStreamChat.activeInstance) {
+							BetterStreamChat.install('trovo');
+						}
+						else if (!newValue && BetterStreamChat.activeInstance) {
+							BetterStreamChat.uninstall();
+						}
+					}
 				},
 				splitChat: {
 					title: 'Split Chat',
@@ -437,10 +443,29 @@ const Helper = {
 			},
 			youtube: {
 				enabled: {
-					title: 'YouTube',
+					title: 'YouTube settings',
 					type: 'boolean'
 				}
 			}
+		},
+		showMessage(message, type = 'success') {
+			if (this.messageTimeout) {
+				clearTimeout(this.messageTimeout);
+			}
+
+			let statusElement = BetterStreamChat.settingsDiv.querySelector('#status');
+			let textElement = statusElement.querySelector('p');
+			textElement.innerHTML = message;
+			textElement.classList.remove(...statusElement.classList);
+			textElement.classList.add(type);
+			statusElement.classList.add('active');
+			let hide = () => {
+				statusElement.removeEventListener('click', hide);
+				statusElement.classList.remove('active');
+				this.messageTimeout = null;
+			};
+			statusElement.addEventListener('click', hide);
+			this.messageTimeout = setTimeout(hide, 2000);
 		},
 		_basic(title, description, formField) {
 			return `<div class="option">
@@ -478,10 +503,15 @@ const Helper = {
 				}
 
 				newSettings[split[0]][split[1]] = value;
+
+				let onChange = this.availableSettings[split[0]][split[1]].onChange;
+				if (typeof onChange === 'function') {
+					onChange(value);
+				}
 			}
 
-			chrome.storage[storageType].set(newSettings, function () {
-				// Settings.showMessage('options maybe saved');
+			chrome.storage[storageType].set(newSettings, () => {
+				this.showMessage('options maybe saved');
 			});
 		},
 		build(category) {
@@ -744,11 +774,12 @@ const BetterStreamChat = {
 			changelogHtml += '</ul>';
 		}
 
+		//<editor-fold desc="settings div">
 		let settingsDiv = document.createElement('div');
 		this.settingsDiv = settingsDiv;
 		// settingsDiv.style.display = 'none';
 		settingsDiv.id = 'bscSettingsPanel';
-		settingsDiv.innerHTML = `<header>
+		settingsDiv.innerHTML = `<div id="status"><p></p></div><header>
 	        <ul class="nav">
 	            <li><a data-tab="about">About</a></li>
 	            <li class="active"><a data-tab="general">General</a></li>
@@ -798,6 +829,7 @@ const BetterStreamChat = {
 	        </span>
 	    </footer>`;
 		document.body.append(settingsDiv);
+		//</editor-fold>
 
 		// bttv events
 		settingsDiv.querySelector('#bttvAddUserBtn').addEventListener('click', () => {
@@ -813,6 +845,8 @@ const BetterStreamChat = {
 
 		// close event
 		settingsDiv.querySelector('.close').addEventListener('click', () => settingsDiv.style.display = 'none');
+
+		// navigation
 		for (let navItem of settingsDiv.querySelectorAll('ul.nav > li > a')) {
 			navItem.addEventListener('click', ({ target }) => {
 				let links = settingsDiv.querySelectorAll('ul.nav > li');
@@ -833,7 +867,7 @@ const BetterStreamChat = {
 			});
 		}
 
-		// initialize bttv/twitch emotes
+		// load bttv/twitch emotes
 		Helper.BTTV.update().then(() => Helper.BTTV.loaded());
 
 		let isEnabled = settings[platform].enabled;
@@ -841,6 +875,9 @@ const BetterStreamChat = {
 			return;
 		}
 
+		this.install(platform);
+	},
+	install(platform) {
 		if (platform === 'trovo') {
 			this.activeInstance = Trovo;
 		}
@@ -853,8 +890,14 @@ const BetterStreamChat = {
 
 		this.activeInstance.init();
 	},
+	uninstall() {
+		this.activeInstance.uninstall();
+		this.activeInstance = null;
+	},
 	update() {
-		this.activeInstance.update();
+		if (this.activeInstance) {
+			this.activeInstance.update();
+		}
 	}
 };
 
@@ -863,6 +906,7 @@ const Trovo = {
 	style: null,
 	settingObserver: null,
 	chatObserver: null,
+	pageChangeObserver: null,
 	handleMessage(node) {
 		if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
 			node.remove();
@@ -926,14 +970,14 @@ const Trovo = {
 	async init() {
 		// check if page was changed
 		let oldHref = document.location.href;
-		const pageChangeObserver = new MutationObserver((mutations) => {
+		this.pageChangeObserver = new MutationObserver((mutations) => {
 			// dont know if length === 2 is so nice TODO improve
 			if (mutations.length === 2 && document.location.href !== oldHref) {
 				oldHref = document.location.href;
 				this.applySettings();
 			}
 		});
-		pageChangeObserver.observe(document.querySelector('.base-container'), { childList: true });
+		this.pageChangeObserver.observe(document.querySelector('.base-container'), { childList: true });
 
 		this.style = document.createElement('style');
 		this.style.type = 'text/css';
@@ -956,6 +1000,22 @@ const Trovo = {
 				console.log('error queryselector');
 			}
 		}, 5000);*/
+	},
+	uninstall() {
+		if (this.settingObserver) {
+			this.settingObserver.disconnect();
+			this.settingObserver = null;
+		}
+		if (this.chatObserver) {
+			this.chatObserver.disconnect();
+			this.chatObserver = null;
+		}
+
+		this.pageChangeObserver.disconnect();
+
+		this.style.remove();
+		this.style = null;
+		this.pageChangeObserver = null;
 	},
 	applySettings() {
 		if (this.settingObserver) {
