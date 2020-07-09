@@ -1,0 +1,301 @@
+#bscSettingsPanel {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -250px;
+	margin-left: -400px;
+	color: #d3d3d3;
+	width: 800px;
+	height: 500px;
+	z-index: 9002;
+	border-radius: 3px;
+	border: 1px solid #000000;
+	background-color: #1e1e1e;
+	box-shadow: -1px 0 0 rgba(0, 0, 0, 0.3), -2px 0 0 rgba(0, 0, 0, 0.2), -3px 0 0 rgba(0, 0, 0, 0.1), 1px 0 0 rgba(0, 0, 0, 0.3), 2px 0 0 rgba(0, 0, 0, 0.2), 3px 0 0 rgba(0, 0, 0, 0.1), 0 -1px 0 rgba(0, 0, 0, 0.3), 0 -2px 0 rgba(0, 0, 0, 0.2), 0 -3px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(0, 0, 0, 0.3), 0 2px 0 rgba(0, 0, 0, 0.2), 0 3px 0 rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	font-size: 15px;
+}
+
+body.youtube {
+	--color-bsc: rgb(171, 8, 8);
+}
+
+body.trovo {
+	--color-bsc: #21b36c;
+}
+
+/* header */
+#bscSettingsPanel header {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	background-color: #282828;
+	border-bottom: 1px solid #111111;
+	line-height: 42px;
+}
+
+#bscSettingsPanel .close {
+	flex: 0 0 auto;
+	font-size: 30px;
+	margin-right: 20px;
+	cursor: pointer;
+}
+
+#bscSettingsPanel .nav {
+	display: flex;
+	flex: 1;
+	list-style: none;
+	margin: 0 10px 0 0;
+	vertical-align: middle;
+}
+
+#bscSettingsPanel .nav > li {
+	padding-left: 10px;
+	padding-right: 10px;
+	color: #adafae;
+	cursor: pointer;
+}
+
+#bscSettingsPanel a:hover,
+#bscSettingsPanel .nav > li.active a {
+	border-bottom: 1px solid var(--color-bsc);
+	color: #d3d3d3;
+}
+
+/* main content */
+#bscSettingsPanel main {
+	overflow-y: auto;
+	display: none;
+	margin-bottom: 35px;
+	max-height: 423px;
+}
+
+#bscSettingsPanel main.active {
+	display: block;
+}
+
+#bscSettingsPanel main h1 {
+	font-size: 25px;
+}
+
+#bscSettingsPanel main h2 {
+	padding-top: 15px;
+	font-size: 18px;
+}
+
+#bscSettingsPanel main h1:first-child,
+#bscSettingsPanel main h2:first-child {
+	padding-top: 0;
+}
+
+#bscSettingsPanel main .option {
+	display: flex;
+	align-items: center;
+	padding: 5px;
+	border-bottom: 1px solid rgb(0, 0, 0) !important;
+	background-color: rgb(30, 30, 30);
+}
+
+#bscSettingsPanel main .option:nth-child(2n) {
+	background-color: rgb(35, 35, 35);
+}
+
+#bscSettingsPanel main .option .labelField {
+	flex: 1;
+}
+
+#bscSettingsPanel main .option .formField {
+	flex: 0 0 auto;
+	margin-right: 10px;
+}
+
+#bscSettingsPanel main .option .labelField > .title {
+	font-weight: bold;
+	font-size: 14px;
+	color: #D3D3D3;
+}
+
+#bscSettingsPanel main .option .labelField > .description {
+	font-size: 12px;
+}
+
+/*#bscSettingsPanel main h3 {
+	font-size: 15px;
+}*/
+
+#bscSettingsPanel main.text {
+	padding: 10px;
+}
+
+#bscSettingsPanel .label {
+	border-radius: 2px;
+	padding: 2px 6px;
+	background: grey;
+	vertical-align: middle;
+}
+
+#bscSettingsPanel .label.red {
+	background: rgba(204, 0, 0, 1);
+}
+
+#bscSettingsPanel .label.green {
+	background: rgba(0, 153, 0, 1);
+}
+
+#bscSettingsPanel .label.orange {
+	background: #f90;
+}
+
+
+#bscSettingsPanel #bttvEmoteList {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 5px 0 0;
+	padding: 0;
+}
+
+#bscSettingsPanel .emoteCard {
+	width: 120px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	background-color: #434857;
+	border-radius: 5px;
+	align-items: center;
+	flex-direction: column;
+	display: flex;
+	padding: 20px 10px;
+	color: #cfd2da;
+}
+
+#bscSettingsPanel .emoteCard img {
+	width: 56px;
+	height: 56px;
+	margin-bottom: 8px;
+}
+
+#bscSettingsPanel .emoteCard span {
+	font-size: 14px;
+	line-height: 16px;
+	word-break: break-all;
+	text-align: center;
+}
+
+#bscSettingsPanel #bttvUserList {
+	list-style: disc;
+	padding-left: 20px;
+}
+
+#bscSettingsPanel #bttvUserList li {
+	font-size: 12px;
+	list-style: disc;
+}
+
+#bscSettingsPanel button {
+	background: var(--color-bsc);
+	padding: 3px 10px;
+}
+
+#bscSettingsPanel #status {
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+	position: fixed;
+	top: 0;
+	transform: translateY(-100%);
+	transition: visibility 0.12s linear 0.12s, transform 0.12s linear, opacity 0.12s linear;
+	visibility: hidden;
+	width: 100%;
+	z-index: 460;
+}
+
+#bscSettingsPanel #status.active {
+	opacity: 1;
+	transform: translateY(0%);
+	transition-delay: 0s;
+	visibility: visible;
+}
+
+#bscSettingsPanel #status > p {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-top-width: 0;
+	cursor: pointer;
+	display: table;
+	margin: 0 auto;
+	max-width: 80%;
+	pointer-events: auto;
+}
+
+#bscSettingsPanel .success {
+	background-color: rgba(223, 240, 216, 1);
+	border-color: rgba(208, 233, 198, 1);
+	color: rgba(60, 118, 61, 1);
+	padding: 10px;
+}
+
+#bscSettingsPanel .error {
+	background-color: rgba(242, 222, 222, 1);
+	border-color: rgba(235, 204, 204, 1);
+	color: rgba(169, 68, 66, 1);
+	padding: 10px;
+}
+
+/* footer */
+#bscSettingsPanel footer {
+	position: absolute;
+	bottom: 0;
+	color: #777777;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	background-color: #282828;
+	width: 100%;
+	padding: 5px;
+	border-top: 1px solid #111111;
+	/*box-sizing: content-box;*/
+	z-index: inherit;
+}
+
+#bscSettingsPanel a {
+	color: var(--color-bsc);
+}
+
+.flexibleButtonGroup {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.flexibleButtonGroup > li {
+	display: flex;
+	flex: 0 0 auto;
+}
+
+.flexibleButtonGroup > li > input[type="radio"] {
+	left: -3000px;
+	opacity: 0;
+	position: absolute;
+}
+
+.flexibleButtonGroup > li > a, .flexibleButtonGroup > li > label {
+	cursor: pointer;
+	background-color: #cfd8dc;
+	border: 1px solid transparent;
+	color: #212121;
+	padding: 0 10px;
+	line-height: 26px;
+	height: 26px;
+	vertical-align: middle;
+}
+
+.flexibleButtonGroup > li > input[type="radio"]:checked + label.green,
+.flexibleButtonGroup > li > input[type="radio"] + label:hover.green {
+	background-color: var(--color-bsc);
+}
+
+.flexibleButtonGroup > li > input[type="radio"]:checked + label.red,
+.flexibleButtonGroup > li > input[type="radio"] + label:hover.red {
+	background-color: #111111;
+	color: #d3d3d3
+}
