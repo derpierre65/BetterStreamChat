@@ -768,12 +768,12 @@ const BetterStreamChat = {
 		// default tab to show on open settings
 		let activeTab = "general";
 
-		// is trovo?
-		if (location.hostname.toLowerCase() === 'trovo.live') {
+		// on trovo?
+		if (platform === 'trovo') {
 			activeTab = "trovo";
 		}
-		// is youtube?
-		else if (location.hostname.toLowerCase().includes('youtube.com')) {
+		// on youtube?
+		else if (platform === 'youtube') {
 			activeTab = "youtube";
 		}
 
@@ -785,10 +785,10 @@ const BetterStreamChat = {
 		settingsDiv.innerHTML = `<div id="status"><p></p></div><header>
 	        <ul class="nav">
 	            <li><a data-tab="about">About</a></li>
-	            <li class="${activeTab.localeCompare("general") === 0 ? "active" : ""}"><a data-tab="general">General</a></li>
+	            <li class="${activeTab === "general" ? "active" : ""}"><a data-tab="general">General</a></li>
 	            <li><a data-tab="bttvSettings">BTTV</a></li>
-	            <li class="${activeTab.localeCompare("trovo") === 0 ? "active" : ""}"><a data-tab="trovoSettings">Trovo</a></li>
-	            <li class="${activeTab.localeCompare("youtube") === 0 ? "active" : ""}"><a data-tab="youtubeSettings">YouTube</a></li>
+	            <li class="${activeTab === "trovo" ? "active" : ""}"><a data-tab="trovoSettings">Trovo</a></li>
+	            <li class="${activeTab === "youtube" ? "active" : ""}"><a data-tab="youtubeSettings">YouTube</a></li>
 	            <li><a data-tab="changelog">Changelog</a></li>
 	            <!--<li><a data-tab="backup">Backup/Import</a></li>-->
 	        </ul>
@@ -797,7 +797,7 @@ const BetterStreamChat = {
 	    <main class="text" data-tab="about">
             soon
 		</main>
-		<main class="${activeTab.localeCompare("general") === 0 ? "active" : ""}" data-tab="general">
+		<main class="${activeTab === "general" ? "active" : ""}" data-tab="general">
 			${Helper.Settings.build('general')}
 		</main>
 		<main class="text" data-tab="bttvSettings">
@@ -815,10 +815,10 @@ const BetterStreamChat = {
 			<h2>Available BetterTTV emotes</h2>
 			<ul id="bttvEmoteList"></ul>
 		</main>
-		<main class="${activeTab.localeCompare("trovo") === 0 ? "active" : ""}" data-tab="trovoSettings">
+		<main class="${activeTab === "trovo" ? "active" : ""}" data-tab="trovoSettings">
 			${Helper.Settings.build('trovo')}
 		</main>
-		<main class="${activeTab.localeCompare("youtube") === 0 ? "active" : ""}" data-tab="youtubeSettings">
+		<main class="${activeTab === "youtube" ? "active" : ""}" data-tab="youtubeSettings">
 			${Helper.Settings.build('youtube')}
 		</main>
 	    <main class="text" data-tab="changelog">
