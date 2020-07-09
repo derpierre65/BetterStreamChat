@@ -27,6 +27,9 @@
 		"open_in_tab": true
 	},
 	"permissions": [
-		"storage"
+		"storage",
+		"https://api.twitch.tv/*",
+		"https://api.betterttv.net/*",
+		"https://api.twitchemotes.com/*"
 	]
 }

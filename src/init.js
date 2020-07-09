@@ -122,27 +122,18 @@ const Helper = {
 				};
 
 				if (typeof items.globalTwitchEmotes === 'undefined' || items.globalTwitchEmotes === null || Date.now() - items.globalTwitchEmotes.lastUpdate > 604800000) {
-					setTimeout(() => {
-						fetch('https://api.twitchemotes.com/api/v4/channels/0').then((response) => {
-							if (response.status === 200) {
-								return response.json();
+					Helper.fetch('https://api.twitchemotes.com/api/v4/channels/0').then((data) => {
+						items.globalTwitchEmotes = {
+							lastUpdate: Date.now(),
+							emotes: {}
+						};
+						for (let emote of data.emotes) {
+							if (emote.code.match(/^[a-zA-Z0-9]+$/)) {
+								items.globalTwitchEmotes.emotes[emote.code] = emote.id;
 							}
-							else {
-								return Promise.reject();
-							}
-						}).then((data) => {
-							items.globalTwitchEmotes = {
-								lastUpdate: Date.now(),
-								emotes: {}
-							};
-							for (let emote of data.emotes) {
-								if (emote.code.match(/^[a-zA-Z0-9]+$/)) {
-									items.globalTwitchEmotes.emotes[emote.code] = emote.id;
-								}
-							}
-							chrome.storage.local.set({ globalTwitchEmotes: items.globalTwitchEmotes }, () => done());
-						}).catch(done);
-					}, 1500);
+						}
+						chrome.storage.local.set({ globalTwitchEmotes: items.globalTwitchEmotes }, () => done());
+					}).catch(done);
 				}
 				else {
 					done();
@@ -154,7 +145,6 @@ const Helper = {
 		isBusy: false,
 		emotes: {},
 		updateSettings() {
-			console.log('[BTTV] update emote list');
 			let bttvEmoteList = BetterStreamChat.settingsDiv.querySelector(' #bttvEmoteList');
 			bttvEmoteList.innerText = '';
 			for (let emote in this.emotes) {
@@ -182,7 +172,6 @@ const Helper = {
 		loaded() {
 			chrome.storage.onChanged.addListener(async function (changes, namespace) {
 				if (namespace === 'local') {
-					console.log('changed', namespace, changes);
 					Helper.BTTV.update();
 				}
 				else if (namespace === 'sync') {
@@ -227,7 +216,6 @@ const Helper = {
 				chrome.storage.local.get((items) => {
 					Helper.Twitch.fetchGlobalEmotes(items).finally(() => {
 						this.fetchGlobalEmotes(items).finally(() => {
-							console.log('bttvusers/emotes', items.bttvEmotes, items.bttvUsers);
 							bttvEmotes = items.bttvEmotes;
 							bttvUsers = items.bttvUsers;
 
@@ -273,7 +261,7 @@ const Helper = {
 				return this.updateEmotes(userID, bttvData);
 			}).then(() => {
 				return Helper.BTTV.addUser(userID, username);
-			}).catch(e => {
+			}).catch(() => {
 				return Promise.reject('User has no BetterTTV.');
 			});
 		},
@@ -627,7 +615,7 @@ const YouTube = {
 const BetterStreamChat = {
 	activeInstance: null,
 	settingsDiv: null,
-	init(platform) {
+	async init(platform) {
 		document.body.classList.add(platform);
 
 		//<editor-fold desc="changelog">
@@ -777,7 +765,7 @@ const BetterStreamChat = {
 		//<editor-fold desc="settings div">
 		let settingsDiv = document.createElement('div');
 		this.settingsDiv = settingsDiv;
-		// settingsDiv.style.display = 'none';
+		settingsDiv.style.display = 'none';
 		settingsDiv.id = 'bscSettingsPanel';
 		settingsDiv.innerHTML = `<div id="status"><p></p></div><header>
 	        <ul class="nav">
@@ -868,7 +856,8 @@ const BetterStreamChat = {
 		}
 
 		// load bttv/twitch emotes
-		Helper.BTTV.update().then(() => Helper.BTTV.loaded());
+		await Helper.BTTV.update();
+		Helper.BTTV.loaded();
 
 		let isEnabled = settings[platform].enabled;
 		if (!isEnabled) {
