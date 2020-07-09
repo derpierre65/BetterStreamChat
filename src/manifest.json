@@ -1,6 +1,6 @@
 {
 	"name": "BetterStreamChat",
-	"version": "1.0.10",
+	"version": "1.1.0",
 	"description": "Twitch Chat Colors in YouTube or Trovo Chat",
 	"manifest_version": 2,
 	"content_scripts": [

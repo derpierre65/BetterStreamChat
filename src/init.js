@@ -2,6 +2,8 @@ let defaultColors = ['#FF0000', '#00FF00', '#B22222', '#FF7F50', '#9ACD32', '#FF
 let storageType = 'sync';
 
 let twitchGlobalEmotes = {};
+let bttvEmotes = {};
+let bttvUsers = {};
 
 const Helper = {
 	getDefaultSettings() {
@@ -26,6 +28,20 @@ const Helper = {
 				enabled: true
 			}
 		};
+	},
+	fetch(...args) {
+		return new Promise((resolve, reject) => {
+			fetch(...args).then((response) => {
+				response.json().then((json) => {
+					if (response.status === 200) {
+						resolve(json);
+					}
+					else {
+						reject(json);
+					}
+				});
+			});
+		});
 	},
 	getSettings() {
 		return new Promise((resolve, reject) => {
@@ -88,6 +104,16 @@ const Helper = {
 		return timestamp;
 	},
 	Twitch: {
+		getUserID(username) {
+			return Helper.fetch('https://api.twitch.tv/kraken/users?login=' + username, {
+				headers: {
+					'Client-ID': 'd25rzn77s7qfk0b16un4su9mxjv0ge1',
+					Accept: 'application/vnd.twitchtv.v5+json'
+				}
+			}).then((data) => {
+				return data.users;
+			});
+		},
 		fetchGlobalEmotes(items) {
 			return new Promise((resolve) => {
 				let done = () => {
@@ -125,11 +151,39 @@ const Helper = {
 		}
 	},
 	BTTV: {
+		isBusy: false,
 		emotes: {},
+		updateSettings() {
+			console.log('[BTTV] update emote list');
+			let bttvEmoteList = BetterStreamChat.settingsDiv.querySelector(' #bttvEmoteList');
+			bttvEmoteList.innerText = '';
+			for (let emote in this.emotes) {
+				if (this.emotes.hasOwnProperty(emote)) {
+					let li = document.createElement('li');
+					let img = document.createElement('img');
+					let span = document.createElement('span');
+					span.innerText = emote;
+					img.src = 'https://cdn.betterttv.net/emote/' + this.emotes[emote] + '/3x';
+					li.classList.add('emoteCard');
+					li.append(img);
+					li.append(span);
+					bttvEmoteList.append(li);
+				}
+			}
+
+			let list = BetterStreamChat.settingsDiv.querySelector('#bttvUserList');
+			list.innerText = '';
+			for (let userID in bttvUsers) {
+				if (bttvUsers.hasOwnProperty(userID)) {
+					this.addUserToList(userID, list);
+				}
+			}
+		},
 		loaded() {
 			chrome.storage.onChanged.addListener(async function (changes, namespace) {
 				if (namespace === 'local') {
-					Helper.BTTV.update(); // update emotes
+					console.log('changed', namespace, changes);
+					Helper.BTTV.update();
 				}
 				else if (namespace === 'sync') {
 					settings = await Helper.getSettings();
@@ -173,6 +227,10 @@ const Helper = {
 				chrome.storage.local.get((items) => {
 					Helper.Twitch.fetchGlobalEmotes(items).finally(() => {
 						this.fetchGlobalEmotes(items).finally(() => {
+							console.log('bttvusers/emotes', items.bttvEmotes, items.bttvUsers);
+							bttvEmotes = items.bttvEmotes;
+							bttvUsers = items.bttvUsers;
+
 							let emotes = {};
 							for (let userID in items.bttvEmotes) {
 								if (items.bttvEmotes.hasOwnProperty(userID)) {
@@ -184,6 +242,7 @@ const Helper = {
 								}
 							}
 							this.emotes = emotes;
+							this.updateSettings();
 							resolve();
 						});
 					});
@@ -195,16 +254,118 @@ const Helper = {
 			let newText = [];
 			for (let word of split) {
 				if (this.emotes[word]) {
-					word = '<img src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" alt="' + word + '" title="' + word + '" />';
+					word = '<img style="vertical-align: middle" src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" alt="' + word + '" title="' + word + '" />';
 				}
 				else if (twitchGlobalEmotes[word]) {
-					word = '<img src="https://static-cdn.jtvnw.net/emoticons/v1/' + twitchGlobalEmotes[word] + '/1.0" alt="' + word + '" title="' + word + '" />';
+					word = '<img style="vertical-align: middle" src="https://static-cdn.jtvnw.net/emoticons/v1/' + twitchGlobalEmotes[word] + '/1.0" alt="' + word + '" title="' + word + '" />';
 				}
 
 				newText.push(word);
 			}
 
 			return newText.join(' ');
+		},
+		getUserEmotes(userID) {
+			return Helper.fetch('https://api.betterttv.net/3/cached/users/twitch/' + userID);
+		},
+		updateUserChannelEmotes(userID, username) {
+			return this.getUserEmotes(userID).then((bttvData) => {
+				return this.updateEmotes(userID, bttvData);
+			}).then(() => {
+				return Helper.BTTV.addUser(userID, username);
+			}).catch(e => {
+				return Promise.reject('User has no BetterTTV.');
+			});
+		},
+		updateEmotes(userID, bttvData) {
+			bttvEmotes[userID] = {};
+
+			let emoteList = [];
+			if (Array.isArray(bttvData.channelEmotes)) {
+				emoteList = emoteList.concat(bttvData.channelEmotes);
+			}
+			if (Array.isArray(bttvData.sharedEmotes)) {
+				emoteList = emoteList.concat(bttvData.sharedEmotes);
+			}
+
+			for (let emote of emoteList) {
+				bttvEmotes[userID][emote.code] = emote.id;
+			}
+		},
+		addUser(userID, username) {
+			if (typeof userID === 'string') {
+				userID = parseInt(userID);
+			}
+
+			return new Promise((resolve) => {
+				let addUser = typeof bttvUsers[userID] === 'undefined';
+
+				bttvUsers[userID] = { username, lastUpdate: Date.now() }; // update
+				chrome.storage.local.set({ bttvUsers, bttvEmotes }, () => {
+					if (addUser) {
+						this.addUserToList(userID);
+					}
+					resolve();
+				});
+			});
+		},
+		tryAddUser() {
+			let userElement = BetterStreamChat.settingsDiv.querySelector('#bttvAddUser');
+			let button = BetterStreamChat.settingsDiv.querySelector('#bttvAddUserBtn');
+			let username = userElement.value.trim();
+			if (!username.length) {
+				return;
+			}
+
+			if (this.isBusy) {
+				return;
+			}
+
+			userElement.setAttribute('disabled', 'disabled');
+			button.setAttribute('disabled', 'disabled');
+			this.isBusy = true;
+			let beforeEmotes = Object.keys(this.emotes).length;
+			let userID;
+			Helper.Twitch.getUserID(username).then((data) => {
+				if (data.length) {
+					userID = data[0]._id;
+					username = data[0].display_name;
+					if (typeof bttvUsers[userID] !== 'undefined') {
+						return Promise.reject('User already in list');
+					}
+
+					return this.updateUserChannelEmotes(userID, data[0].display_name);
+				}
+				else {
+					return Promise.reject('Twitch user not found');
+				}
+			}).then(() => {
+				return Helper.BTTV.update();
+			}).then(() => {
+				console.log('ok!');
+				// let newEmotes = Object.keys(Helper.BTTV.emotes).length - beforeEmotes;
+				// Settings.showMessage('User ' + username + ' and ' + newEmotes + ' emotes added.');
+			}).catch((err) => {
+				console.log('ERROR!', err);
+				// Settings.showMessage(err, 'error');
+			}).finally(() => {
+				userElement.value = '';
+				userElement.removeAttribute('disabled');
+				button.removeAttribute('disabled');
+				this.isBusy = false;
+			});
+		},
+		addUserToList(userID, list) {
+			list = list || BetterStreamChat.settingsDiv.querySelector('#bttvUserList');
+			if (userID === 'global') {
+				return;
+			}
+
+			let user = bttvUsers[userID];
+			let li = document.createElement('li');
+			li.id = 'bttvUser' + userID;
+			li.innerText = user.username + ' (last update: ' + (new Date(user.lastUpdate)).toLocaleString() + ')';
+			list.append(li);
 		}
 	},
 	Settings: {
@@ -457,6 +618,9 @@ const BetterStreamChat = {
 				text: 'The BetterStreamChat options are applied when switching the channel.',
 				label: 'fixed',
 				issueID: 3
+			}, {
+				text: 'Fixed the emote alignment.',
+				label: 'fixed'
 			}]
 		}, {
 			version: '1.0.10',
@@ -582,7 +746,7 @@ const BetterStreamChat = {
 
 		let settingsDiv = document.createElement('div');
 		this.settingsDiv = settingsDiv;
-		settingsDiv.style.display = 'none';
+		// settingsDiv.style.display = 'none';
 		settingsDiv.id = 'bscSettingsPanel';
 		settingsDiv.innerHTML = `<header>
 	        <ul class="nav">
@@ -603,7 +767,19 @@ const BetterStreamChat = {
 			${Helper.Settings.build('general')}
 		</main>
 		<main class="text" data-tab="bttvSettings">
-			coming soon (use the old setting section in your browser)
+			<h2>Channels</h2>
+			<ul id="bttvUserList"></ul>
+
+			<h4 style="margin-top:10px;">Add new channel (Twitch username)</h4>
+			<div>
+				<input type="text" id="bttvAddUser" />
+				<button id="bttvAddUserBtn">+</button>
+			</div>
+
+			<small>ability to update/remove user coming soon</small>
+			
+			<h2>Available BetterTTV emotes</h2>
+			<ul id="bttvEmoteList"></ul>
 		</main>
 		<main data-tab="trovoSettings">
 			${Helper.Settings.build('trovo')}
@@ -622,6 +798,19 @@ const BetterStreamChat = {
 	        </span>
 	    </footer>`;
 		document.body.append(settingsDiv);
+
+		// bttv events
+		settingsDiv.querySelector('#bttvAddUserBtn').addEventListener('click', () => {
+			Helper.BTTV.tryAddUser();
+		});
+		settingsDiv.querySelector('#bttvAddUser').addEventListener('keyup', (event) => {
+			if (event.key !== 'Enter') {
+				return;
+			}
+
+			Helper.BTTV.tryAddUser();
+		});
+
 		// close event
 		settingsDiv.querySelector('.close').addEventListener('click', () => settingsDiv.style.display = 'none');
 		for (let navItem of settingsDiv.querySelectorAll('ul.nav > li > a')) {
@@ -643,6 +832,9 @@ const BetterStreamChat = {
 				Helper.Settings.save([event.target]);
 			});
 		}
+
+		// initialize bttv/twitch emotes
+		Helper.BTTV.update().then(() => Helper.BTTV.loaded());
 
 		let isEnabled = settings[platform].enabled;
 		if (!isEnabled) {
@@ -865,11 +1057,6 @@ const Trovo = {
 
 // initialization
 let initialize = async () => {
-	// update emote list
-	Helper.BTTV.update().then(() => {
-		Helper.BTTV.loaded();
-	});
-
 	// do non settings page stuff
 	try {
 		settings = await Helper.getSettings();

@@ -86,6 +86,11 @@ body.trovo {
 	font-size: 18px;
 }
 
+#bscSettingsPanel main h1:first-child,
+#bscSettingsPanel main h2:first-child {
+	padding-top: 0;
+}
+
 #bscSettingsPanel main .option {
 	display: flex;
 	align-items: center;
@@ -142,6 +147,55 @@ body.trovo {
 
 #bscSettingsPanel .label.orange {
 	background: #f90;
+}
+
+
+#bscSettingsPanel #bttvEmoteList {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 5px 0 0;
+	padding: 0;
+}
+
+#bscSettingsPanel .emoteCard {
+	width: 120px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	background-color: #434857;
+	border-radius: 5px;
+	align-items: center;
+	flex-direction: column;
+	display: flex;
+	padding: 20px 10px;
+	color: #cfd2da;
+}
+
+#bscSettingsPanel .emoteCard img {
+	width: 56px;
+	height: 56px;
+	margin-bottom: 8px;
+}
+
+#bscSettingsPanel .emoteCard span {
+	font-size: 14px;
+	line-height: 16px;
+	word-break: break-all;
+	text-align: center;
+}
+
+#bscSettingsPanel #bttvUserList {
+	list-style: disc;
+	padding-left: 20px;
+}
+
+#bscSettingsPanel #bttvUserList li {
+	font-size: 12px;
+	list-style: disc;
+}
+
+#bscSettingsPanel button {
+	background: var(--color-bsc);
+	padding: 3px 10px;
 }
 
 /* footer */
