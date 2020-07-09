@@ -900,6 +900,7 @@ const Trovo = {
 	chatObserver: null,
 	pageChangeObserver: null,
 	handleMessage(node) {
+
 		if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
 			node.remove();
 		}
@@ -958,6 +959,9 @@ const Trovo = {
 				el.style.color = Helper.getUserChatColor(name);
 			}
 		}
+
+		node.classList.add("loadedAni");
+		node.scrollIntoView(true)
 	},
 	async init() {
 		// check if page was changed
