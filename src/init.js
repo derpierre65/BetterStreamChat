@@ -630,6 +630,9 @@ const BetterStreamChat = {
 			version: '1.1.0',
 			date: '2020-07-09',
 			items: [{
+				text: 'Option to disable BetterStreamChat on YouTube.',
+				label: 'added'
+			}, {
 				text: 'Changed the settings menu and integrated to page.',
 				label: 'changed'
 			}, {
