@@ -313,7 +313,7 @@ body.trovo {
 	animation-name: fadeInOpacity;
 	animation-iteration-count: 1;
 	animation-timing-function: linear;
-	animation-duration: 80ms;
+	animation-duration: 200ms;
 }
 
 @keyframes fadeInOpacity {

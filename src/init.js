@@ -960,6 +960,7 @@ const Trovo = {
 			}
 		}
 
+		// set message css class
 		node.classList.add("loadedAni");
 
 		// yet another scroll fix? 
