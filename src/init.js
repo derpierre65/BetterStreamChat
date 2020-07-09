@@ -773,10 +773,10 @@ const BetterStreamChat = {
 		settingsDiv.innerHTML = `<div id="status"><p></p></div><header>
 	        <ul class="nav">
 	            <li><a data-tab="about">About</a></li>
-	            <li class="active"><a data-tab="general">General</a></li>
+	            <li><a data-tab="general">General</a></li>
 	            <li><a data-tab="bttvSettings">BTTV</a></li>
-	            <li><a data-tab="trovoSettings">Trovo</a></li>
-	            <li><a data-tab="youtubeSettings">YouTube</a></li>
+	            <li class="${platform === "trovo" ? "active" : ""}"><a data-tab="trovoSettings">Trovo</a></li>
+	            <li class="${platform === "youtube" ? "active" : ""}"><a data-tab="youtubeSettings">YouTube</a></li>
 	            <li><a data-tab="changelog">Changelog</a></li>
 	            <!--<li><a data-tab="backup">Backup/Import</a></li>-->
 	        </ul>
@@ -785,7 +785,7 @@ const BetterStreamChat = {
 	    <main class="text" data-tab="about">
             soon
 		</main>
-		<main class="active" data-tab="general">
+		<main data-tab="general">
 			${Helper.Settings.build('general')}
 		</main>
 		<main class="text" data-tab="bttvSettings">
@@ -803,10 +803,10 @@ const BetterStreamChat = {
 			<h2>Available BetterTTV emotes</h2>
 			<ul id="bttvEmoteList"></ul>
 		</main>
-		<main data-tab="trovoSettings">
+		<main class="${platform === "trovo" ? "active" : ""}" data-tab="trovoSettings">
 			${Helper.Settings.build('trovo')}
 		</main>
-		<main data-tab="youtubeSettings">
+		<main class="${platform === "youtube" ? "active" : ""}" data-tab="youtubeSettings">
 			${Helper.Settings.build('youtube')}
 		</main>
 	    <main class="text" data-tab="changelog">
@@ -1109,6 +1109,7 @@ const Trovo = {
 
 // initialization
 let initialize = async () => {
+
 	// do non settings page stuff
 	try {
 		settings = await Helper.getSettings();
