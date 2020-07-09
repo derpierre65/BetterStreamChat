@@ -8,6 +8,9 @@
 			"js": [
 				"init.js"
 			],
+			"css": [
+				"betterstreamchat.css"
+			],
 			"matches": [
 				"https://trovo.live/*",
 				"https://www.youtube.com/*"

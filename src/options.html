@@ -78,19 +78,20 @@
 			margin: 0 auto;
 			max-width: 80%;
 			pointer-events: auto;
-			padding: 10px;
 		}
 
 		.success {
 			background-color: rgba(223, 240, 216, 1);
 			border-color: rgba(208, 233, 198, 1);
 			color: rgba(60, 118, 61, 1);
+			padding: 10px;
 		}
 
 		.error {
 			background-color: rgba(242, 222, 222, 1);
 			border-color: rgba(235, 204, 204, 1);
 			color: rgba(169, 68, 66, 1);
+			padding: 10px;
 		}
 
 		dl > dd > small {
@@ -103,72 +104,74 @@
 <body style="display:none;">
 	<div id="status"><p></p></div>
 
+	<p class="error">Deprecated! Use the new setting window at trovo/youtube chat.</p>
+
 	<h2>General</h2>
 	<dl>
 		<dt>highlight words</dt>
 		<dd>
-			<label><input type="text" class="option" data-name="general_highlightWords" /></label>
+			<label><input type="text" class="optionField" data-name="general_highlightWords" /></label>
 			<small>Use spaces in the field to specify multiple keywords.</small>
-		</dd>
-		<dd>
-			<label><input type="checkbox" class="option" data-name="general_splitChat" /> Split Chat</label>
-			<small>Alternates backgrounds between messages in chat to improve readability</small>
 		</dd>
 	</dl>
 
 	<h2>Trovo</h2>
 	<dl>
 		<dd>
-			<label><input type="checkbox" class="option enableOption" data-name="trovo_enabled">Enabled</label>
+			<label><input type="checkbox" class="optionField enableOption" data-name="trovo_enabled">Enabled</label>
 			<small></small>
 		</dd>
 	</dl>
 	<dl id="trovoSettings" style="display:none;">
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_enabledColors">Enable colors</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_enabledColors">Enable colors</label>
 			<small>Enable the different chat colors for users.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_experimentalScroll">Enable new scroll fix</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_splitChat" /> Split Chat</label>
+			<small>Alternates backgrounds between messages in chat to improve readability</small>
+		</dd>
+		<dd>
+			<label><input type="checkbox" class="optionField" data-name="trovo_experimentalScroll">Enable new scroll fix</label>
 			<small>This is the future scroll fix for the trovo scroll issue, you can test the new fix with this option.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_fullName">Full name</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_fullName">Full name</label>
 			<small>Show complete username and don't cut the name.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_hideAvatar">Hide avatar</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_hideAvatar">Hide avatar</label>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_showTimestamp">Show timestamp</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_showTimestamp">Show timestamp</label>
 			<small>Show the timestamp before the nickname.</small>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_showTimestampSeconds">Show seconds in timestamp</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_showTimestampSeconds">Show seconds in timestamp</label>
 		</dd>
 		<dd>
-			<label><input type="checkbox" class="option" data-name="trovo_disableGifts">Disable gift messages</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_disableGifts">Disable gift messages</label>
 		</dd>
 		<dt>Timestamp format</dt>
 		<dd>
-			<select class="option" data-name="trovo_timestampFormat" data-type="number">
+			<select class="optionField" data-name="trovo_timestampFormat" data-type="number">
 				<option value="12">01:33:37 (12-hour clock)</option>
 				<option value="24">13:33:37 (24-hour clock)</option>
 			</select>
 		</dd>
 		<dd style="display:none;">
-			<label><input type="checkbox" class="option" data-name="trovo_showRealViewers">Show real viewer number</label>
+			<label><input type="checkbox" class="optionField" data-name="trovo_showRealViewers">Show real viewer number</label>
 		</dd>
 		<dt>Message font size</dt>
 		<dd>
-			<input type="number" min="6" max="40" class="option" data-name="trovo_fontSize" />
+			<input type="number" min="6" max="40" class="optionField" data-name="trovo_fontSize" />
 		</dd>
 	</dl>
 
 	<h2>YouTube</h2>
 	<dl>
 		<dd>
-			<label><input type="checkbox" class="option enableOption" data-name="youtube_enabled">Enabled</label>
+			<label><input type="checkbox" class="optionField enableOption" data-name="youtube_enabled">Enabled</label>
 			<small></small>
 		</dd>
 	</dl>
