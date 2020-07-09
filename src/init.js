@@ -961,7 +961,9 @@ const Trovo = {
 		}
 
 		node.classList.add("loadedAni");
-		node.scrollIntoView(true)
+
+		// yet another scroll fix? 
+		node.scrollIntoView(true);
 	},
 	async init() {
 		// check if page was changed
