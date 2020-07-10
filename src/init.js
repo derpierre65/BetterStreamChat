@@ -975,7 +975,7 @@ const Trovo = {
 
 
 		// yet another scroll fix? 
-		node.scrollIntoView(true);
+		node.scrollIntoView();
 	},
 	async init() {
 		// check if page was changed
