@@ -627,6 +627,13 @@ const BetterStreamChat = {
 			removed: '<span class="label red">Removed</span>'
 		};
 		let changelogList = [{
+			version: '1.1.1',
+			date: '2020-07-10',
+			items: [{
+				text: 'Fixed addon loading in Popout Chat in Trovo.',
+				label: 'fixed'
+			}]
+		}, {
 			version: '1.1.0',
 			date: '2020-07-09',
 			items: [{
@@ -775,8 +782,8 @@ const BetterStreamChat = {
 	            <li><a data-tab="about">About</a></li>
 	            <li><a data-tab="general">General</a></li>
 	            <li><a data-tab="bttvSettings">BTTV</a></li>
-	            <li class="${platform === "trovo" ? "active" : ""}"><a data-tab="trovoSettings">Trovo</a></li>
-	            <li class="${platform === "youtube" ? "active" : ""}"><a data-tab="youtubeSettings">YouTube</a></li>
+	            <li class="${platform === 'trovo' ? 'active' : ''}"><a data-tab="trovoSettings">Trovo</a></li>
+	            <li class="${platform === 'youtube' ? 'active' : ''}"><a data-tab="youtubeSettings">YouTube</a></li>
 	            <li><a data-tab="changelog">Changelog</a></li>
 	            <!--<li><a data-tab="backup">Backup/Import</a></li>-->
 	        </ul>
@@ -803,10 +810,10 @@ const BetterStreamChat = {
 			<h2>Available BetterTTV emotes</h2>
 			<ul id="bttvEmoteList"></ul>
 		</main>
-		<main class="${platform === "trovo" ? "active" : ""}" data-tab="trovoSettings">
+		<main class="${platform === 'trovo' ? 'active' : ''}" data-tab="trovoSettings">
 			${Helper.Settings.build('trovo')}
 		</main>
-		<main class="${platform === "youtube" ? "active" : ""}" data-tab="youtubeSettings">
+		<main class="${platform === 'youtube' ? 'active' : ''}" data-tab="youtubeSettings">
 			${Helper.Settings.build('youtube')}
 		</main>
 	    <main class="text" data-tab="changelog">
@@ -961,15 +968,18 @@ const Trovo = {
 	},
 	async init() {
 		// check if page was changed
-		let oldHref = document.location.href;
-		this.pageChangeObserver = new MutationObserver((mutations) => {
-			// dont know if length === 2 is so nice TODO improve
-			if (mutations.length === 2 && document.location.href !== oldHref) {
-				oldHref = document.location.href;
-				this.applySettings();
-			}
-		});
-		this.pageChangeObserver.observe(document.querySelector('.base-container'), { childList: true });
+		let baseContainer = document.querySelector('.base-container');
+		if (baseContainer) {
+			let oldHref = document.location.href;
+			this.pageChangeObserver = new MutationObserver((mutations) => {
+				// dont know if length === 2 is so nice TODO improve
+				if (mutations.length === 2 && document.location.href !== oldHref) {
+					oldHref = document.location.href;
+					this.applySettings();
+				}
+			});
+			this.pageChangeObserver.observe(document.querySelector('.base-container'), { childList: true });
+		}
 
 		this.style = document.createElement('style');
 		this.style.type = 'text/css';
