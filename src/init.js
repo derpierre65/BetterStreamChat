@@ -416,6 +416,11 @@ const Helper = {
 					title: 'Disable gift messages',
 					type: 'boolean'
 				},
+				fadeNewMsg: {
+					title: 'Fade new messages',
+					description: 'This option can enhance readability, but it is maybe bad for streams with many participants.',
+					type: 'boolean'
+				},
 				timestampFormat: {
 					title: 'Timestamp format',
 					type: 'select',
@@ -961,7 +966,13 @@ const Trovo = {
 		}
 
 		// set message css class
-		node.classList.add("loadedAni");
+		if (settings.trovo.fadeNewMsg) {
+			node.classList.add("loadedAni");
+		}
+		else {
+			node.classList.add("loaded");
+		}
+
 
 		// yet another scroll fix? 
 		node.scrollIntoView(true);
