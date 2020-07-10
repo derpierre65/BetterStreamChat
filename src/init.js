@@ -627,12 +627,20 @@ const BetterStreamChat = {
 			removed: '<span class="label red">Removed</span>'
 		};
 		let changelogList = [{
+			version: '1.1.2',
+			date: '2020-07-10',
+			items: [{
+				text: 'Maybe fixed the auto scroll bug completely.',
+				label: 'optimized',
+				issueID: 1
+			}]
+		}, {
 			version: '1.1.1',
 			date: '2020-07-10',
 			items: [{
 				text: 'Auto open settings tab for the current platform.',
 				label: 'changed'
-			},{
+			}, {
 				text: 'Fixed addon loading in Popout Chat in Trovo.',
 				label: 'fixed'
 			}]
@@ -658,7 +666,8 @@ const BetterStreamChat = {
 			date: '2020-07-03',
 			items: [{
 				text: 'Option with new experimental scroll fix (can be enabled in options)',
-				label: 'added'
+				label: 'added',
+				issueID: 1
 			}, {
 				text: 'Twitch global emotes',
 				label: 'added'
@@ -909,6 +918,7 @@ const Trovo = {
 	settingObserver: null,
 	chatObserver: null,
 	pageChangeObserver: null,
+	readMoreObserver: null,
 	handleMessage(node) {
 		if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
 			node.remove();
@@ -1015,12 +1025,16 @@ const Trovo = {
 			this.chatObserver.disconnect();
 			this.chatObserver = null;
 		}
+		if (this.readMoreObserver) {
+			this.readMoreObserver.disconnect();
+			this.readMoreObserver = null;
+		}
 
 		this.pageChangeObserver.disconnect();
+		this.pageChangeObserver = null;
 
 		this.style.remove();
 		this.style = null;
-		this.pageChangeObserver = null;
 	},
 	applySettings() {
 		if (this.settingObserver) {
@@ -1034,8 +1048,9 @@ const Trovo = {
 		}
 
 		// create new observer if setting-container exists
-		let settingContainer = document.querySelector('.input-panels-container');
-		if (settingContainer) {
+		let settingsContainer = document.querySelector('.input-panels-container');
+		if (settingsContainer) {
+			let chatList = document.querySelector('.chat-list-wrap');
 			this.chatoBobserver = new MutationObserver((mutations) => {
 				for (let mutation of mutations) {
 					for (let node of mutation.addedNodes) {
@@ -1049,7 +1064,6 @@ const Trovo = {
 				}
 
 				if (settings.trovo.experimentalScroll) {
-					let chatList = document.querySelector('.chat-list-wrap');
 					if (chatList.scrollHeight - chatList.scrollTop - chatList.offsetHeight === 0) {
 						let readMoreButton = document.querySelector('.read-tip');
 						if (readMoreButton) {
@@ -1060,25 +1074,53 @@ const Trovo = {
 			});
 			this.settingObserver = new MutationObserver((mutations) => {
 				for (let mutation of mutations) {
+					for (let node of mutation.removedNodes) {
+						if (node.classList) {
+							if (node.classList.contains('read-tip')) {
+								this.readMoreObserver.disconnect();
+								this.readMoreObserver = null;
+							}
+						}
+					}
 					for (let node of mutation.addedNodes) {
-						if (node.classList && node.classList.contains('transition-slide-up-enter')) {
-							let menuDiv = document.createElement('div');
-							let spacerDiv = document.createElement('div');
-							spacerDiv.innerHTML = '<hr />';
-							menuDiv.innerHTML = '<div class="setting-row cursor-pointer"><span style="margin-left: 24px;">BetterStreamChat</span></div>';
-							document.querySelector('.setting-container').append(spacerDiv);
-							document.querySelector('.setting-container').append(menuDiv);
-							menuDiv.addEventListener('click', () => {
-								BetterStreamChat.settingsDiv.style.display = 'block';
-								document.body.click(); // click on body to close the settings container lol
-							});
-							break;
+						if (node.classList) {
+							if (node.classList.contains('read-tip')) {
+								if (this.readMoreObserver === null) {
+									// read tip changed
+									this.readMoreObserver = new MutationObserver((mutations) => {
+										let scrollPosition = chatList.scrollHeight - chatList.scrollTop - chatList.offsetHeight;
+										if (scrollPosition === 0 || scrollPosition < chatList.lastChild.offsetHeight) {
+											let moreMessageElement = document.querySelector('.read-tip');
+											if (moreMessageElement) {
+												moreMessageElement.click();
+											}
+										}
+									});
+									this.readMoreObserver.observe(node, { attributes: true });
+								}
+							}
+
+							if (node.classList.contains('transition-slide-up-enter')) {
+								let menuDiv = document.createElement('div');
+								let spacerDiv = document.createElement('div');
+								spacerDiv.innerHTML = '<hr />';
+								menuDiv.innerHTML = '<div class="setting-row cursor-pointer"><span style="margin-left: 24px;">BetterStreamChat</span></div>';
+								let settingsContainer = document.querySelector('.setting-container');
+								if (settingsContainer) {
+									settingsContainer.append(spacerDiv);
+									settingsContainer.append(menuDiv);
+									menuDiv.addEventListener('click', () => {
+										BetterStreamChat.settingsDiv.style.display = 'block';
+										document.body.click(); // click on body to close the settings container lol
+									});
+								}
+							}
 						}
 					}
 				}
 			});
-			this.settingObserver.observe(settingContainer, { childList: true });
-			this.chatoBobserver.observe(document.querySelector('.chat-list-wrap'), { attributes: true, childList: true, characterData: true });
+			this.settingObserver.observe(settingsContainer, { childList: true });
+			this.chatoBobserver.observe(chatList, { attributes: true, childList: true, characterData: true });
 		}
 	},
 	update() {
