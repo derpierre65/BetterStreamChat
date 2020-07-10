@@ -20,6 +20,7 @@ const Helper = {
 				hideAvatar: true,
 				timestamp: true,
 				timestampSeconds: false,
+				fadeNewMessage: false,
 				disableGifts: false,
 				timestampFormat: 24, // 12/24
 				fontSize: 12
@@ -416,7 +417,7 @@ const Helper = {
 					title: 'Disable gift messages',
 					type: 'boolean'
 				},
-				fadeNewMsg: {
+				fadeNewMessage: {
 					title: 'Fade new messages',
 					description: 'This option can enhance readability, but it is maybe bad for streams with many participants.',
 					type: 'boolean'
@@ -991,7 +992,7 @@ const Trovo = {
 		}
 
 		// set message css class from settings
-		if (settings.trovo.fadeNewMsg) {
+		if (settings.trovo.fadeNewMessage) {
 			node.classList.add('loadedFade');
 		}
 		else {
