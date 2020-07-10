@@ -965,14 +965,13 @@ const Trovo = {
 			}
 		}
 
-		// set message css class
+		// set message css class from settings
 		if (settings.trovo.fadeNewMsg) {
-			node.classList.add("loadedAni");
+			node.classList.add("loadedFade");
 		}
 		else {
 			node.classList.add("loaded");
 		}
-
 
 		// yet another scroll fix? 
 		node.scrollIntoView();

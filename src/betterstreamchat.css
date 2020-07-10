@@ -308,7 +308,7 @@ body.trovo {
 	opacity: 1;
 }
 
-.message.loadedAni {
+.message.loadedFade {
 	opacity: 1;
 	animation-name: fadeInOpacity;
 	animation-iteration-count: 1;
