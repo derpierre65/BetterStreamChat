@@ -635,6 +635,10 @@ const BetterStreamChat = {
 			version: '1.1.2',
 			date: '2020-07-10',
 			items: [{
+				text: 'New option for a message fade in effect.',
+				label: 'added',
+				issueID: 9
+			}, {
 				text: 'Maybe fixed the auto scroll bug completely.',
 				label: 'optimized',
 				issueID: 1
@@ -644,7 +648,8 @@ const BetterStreamChat = {
 			date: '2020-07-10',
 			items: [{
 				text: 'Auto open settings tab for the current platform.',
-				label: 'changed'
+				label: 'changed',
+				issueID: 8
 			}, {
 				text: 'Fixed addon loading in Popout Chat in Trovo.',
 				label: 'fixed'
@@ -987,10 +992,10 @@ const Trovo = {
 
 		// set message css class from settings
 		if (settings.trovo.fadeNewMsg) {
-			node.classList.add("loadedFade");
+			node.classList.add('loadedFade');
 		}
 		else {
-			node.classList.add("loaded");
+			node.classList.add('loaded');
 		}
 	},
 	async init() {

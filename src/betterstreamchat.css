@@ -300,23 +300,23 @@ body.trovo {
 	color: #d3d3d3
 }
 
-.message {
+body.trovo .message {
 	opacity: 0;
 }
 
-.message.loaded {
+body.trovo .message.loaded {
 	opacity: 1;
 }
 
-.message.loadedFade {
+body.trovo .message.loadedFade {
 	opacity: 1;
-	animation-name: fadeInOpacity;
+	animation-name: BetterStreamChatFadeInOpacity;
 	animation-iteration-count: 1;
 	animation-timing-function: linear;
 	animation-duration: 100ms;
 }
 
-@keyframes fadeInOpacity {
+@keyframes BetterStreamChatFadeInOpacity {
 	0% {
 		opacity: 0;
 	}
