@@ -416,6 +416,11 @@ const Helper = {
 					title: 'Disable gift messages',
 					type: 'boolean'
 				},
+				fadeNewMsg: {
+					title: 'Fade new messages',
+					description: 'This option can enhance readability, but it is maybe bad for streams with many participants.',
+					type: 'boolean'
+				},
 				timestampFormat: {
 					title: 'Timestamp format',
 					type: 'select',
@@ -920,6 +925,7 @@ const Trovo = {
 	pageChangeObserver: null,
 	readMoreObserver: null,
 	handleMessage(node) {
+
 		if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
 			node.remove();
 		}
@@ -977,6 +983,14 @@ const Trovo = {
 				let name = el.innerText.substr(1);
 				el.style.color = Helper.getUserChatColor(name);
 			}
+		}
+
+		// set message css class from settings
+		if (settings.trovo.fadeNewMsg) {
+			node.classList.add("loadedFade");
+		}
+		else {
+			node.classList.add("loaded");
 		}
 	},
 	async init() {

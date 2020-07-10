@@ -299,3 +299,28 @@ body.trovo {
 	background-color: #111111;
 	color: #d3d3d3
 }
+
+.message {
+	opacity: 0;
+}
+
+.message.loaded {
+	opacity: 1;
+}
+
+.message.loadedFade {
+	opacity: 1;
+	animation-name: fadeInOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: linear;
+	animation-duration: 100ms;
+}
+
+@keyframes fadeInOpacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
