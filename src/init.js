@@ -33,7 +33,7 @@ const Helper = {
 				hideEngagementMessage: true,
 				hidePaidMessages: false,
 				hideMembershipMessages: false,
-				timestampFormat: 12, // 12/24
+				timestampFormat: 12 // 12/24
 			}
 		};
 	},
@@ -640,8 +640,15 @@ const YouTube = {
 	},
 	init() {
 		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
+		let loaded = false;
 		const init = (documentElement, target) => {
+			if (loaded) {
+				return;
+			}
+
 			if (target !== null) {
+				loaded = true;
+
 				this.document = documentElement;
 
 				const observer = new MutationObserver((mutations) => {
@@ -669,20 +676,22 @@ const YouTube = {
 		};
 
 		let target = document.querySelector(chatQuerySelector);
+		// normal stream chat
 		if (target === null) {
-			const bodyObserver = new MutationObserver(function (mutations) {
+			const bodyObserver = new MutationObserver(() => {
 				let chatFrame = document.querySelector('#chatframe');
 				if (chatFrame) {
-					bodyObserver.disconnect();
 					let documentElement = chatFrame.contentDocument;
 					target = documentElement.querySelector(chatQuerySelector);
-					init(documentElement, target);
+					if (target !== null) {
+						bodyObserver.disconnect();
+						init(documentElement, target);
+					}
 				}
 			});
-
-			const config = { childList: true };
-			bodyObserver.observe(document.querySelector('body'), config);
+			bodyObserver.observe(document.querySelector('body'), { childList: true });
 		}
+		// popout stream chat
 		else {
 			init(document, target);
 		}
@@ -744,7 +753,7 @@ const BetterStreamChat = {
 			}, {
 				text: 'New option to enable colors on YouTube.',
 				label: 'added'
-			},  {
+			}, {
 				text: 'New option to hide avatars on YouTube.',
 				label: 'added'
 			}, {
@@ -753,13 +762,13 @@ const BetterStreamChat = {
 			}, {
 				text: 'New option to hide membership messages on YouTube.',
 				label: 'added'
-			},  {
+			}, {
 				text: 'New option to hide engagement message on YouTube.',
 				label: 'added'
-			},  {
+			}, {
 				text: 'New option to move the user badges before the username on YouTube.',
 				label: 'added'
-			},  {
+			}, {
 				text: 'New option to change the timestamp on YouTube.',
 				label: 'added'
 			}, {
