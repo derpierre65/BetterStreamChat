@@ -640,15 +640,8 @@ const YouTube = {
 	},
 	init() {
 		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
-		let loaded = false;
 		const init = (documentElement, target) => {
-			if (loaded) {
-				return;
-			}
-
 			if (target !== null) {
-				loaded = true;
-
 				this.document = documentElement;
 
 				const observer = new MutationObserver((mutations) => {
@@ -678,18 +671,18 @@ const YouTube = {
 		let target = document.querySelector(chatQuerySelector);
 		// normal stream chat
 		if (target === null) {
-			const bodyObserver = new MutationObserver(() => {
+			let interval = setInterval(() => {
 				let chatFrame = document.querySelector('#chatframe');
 				if (chatFrame) {
 					let documentElement = chatFrame.contentDocument;
 					target = documentElement.querySelector(chatQuerySelector);
+
 					if (target !== null) {
-						bodyObserver.disconnect();
+						clearInterval(interval);
 						init(documentElement, target);
 					}
 				}
-			});
-			bodyObserver.observe(document.querySelector('body'), { childList: true });
+			}, 250);
 		}
 		// popout stream chat
 		else {
@@ -771,6 +764,9 @@ const BetterStreamChat = {
 			}, {
 				text: 'New option to change the timestamp on YouTube.',
 				label: 'added'
+			}, {
+				text: 'Sometime the addon wasn\'t loaded on YouTube.',
+				label: 'fixed'
 			}, {
 				text: 'Browser addon settings page (full integrated into Trovo/YouTube).',
 				label: 'removed'
