@@ -26,7 +26,14 @@ const Helper = {
 				fontSize: 12
 			},
 			youtube: {
-				enabled: true
+				enabled: true,
+				enabledColors: true,
+				hideAvatar: true,
+				badgeBeforeName: true,
+				hideEngagementMessage: true,
+				hidePaidMessages: false,
+				hideMembershipMessages: false,
+				timestampFormat: 12, // 12/24
 			}
 		};
 	},
@@ -439,6 +446,45 @@ const Helper = {
 				enabled: {
 					title: 'YouTube settings',
 					type: 'boolean'
+				},
+				enabledColors: {
+					title: 'Chat colors',
+					description: 'Enable different chat colors for users.',
+					type: 'boolean'
+				},
+				hideAvatar: {
+					title: 'Hide avatar',
+					description: '',
+					type: 'boolean'
+				},
+				hidePaidMessages: {
+					title: 'Hide paid messages',
+					description: '',
+					type: 'boolean'
+				},
+				hideMembershipMessages: {
+					title: 'Hide membership messages',
+					description: '',
+					type: 'boolean'
+				},
+				hideEngagementMessage: {
+					title: 'Hide engagement message',
+					description: '',
+					type: 'boolean'
+				},
+				badgeBeforeName: {
+					title: 'Move badge before username',
+					description: '',
+					type: 'boolean'
+				},
+				timestampFormat: {
+					title: 'Timestamp format',
+					description: 'Timestamp must be enabled (24 hour clock remove the AM/PM).',
+					type: 'select',
+					items: [
+						{ value: 12, label: '01:37 (12-hour clock)' },
+						{ value: 24, label: '13:37 (24-hour clock)' }
+					]
 				}
 			}
 		},
@@ -515,17 +561,18 @@ const Helper = {
 				if (categorySettings.hasOwnProperty(name)) {
 					let setting = categorySettings[name];
 					let type = setting.type;
+					let fieldName = category + '_' + name;
 					if (type === 'boolean') {
-						html += this.boolean(category + '_' + name, setting.title, setting.description, settings[category][name]);
+						html += this.boolean(fieldName, setting.title, setting.description, settings[category][name]);
 					}
 					else if (type === 'text') {
-						html += this.text(category + '_' + name, setting.title, setting.description, settings[category][name]);
+						html += this.text(fieldName, setting.title, setting.description, settings[category][name]);
 					}
 					else if (type === 'number') {
-						html += this.number(category + '_' + name, setting.title, setting.description, settings[category][name], setting.min, setting.max);
+						html += this.number(fieldName, setting.title, setting.description, settings[category][name], setting.min, setting.max);
 					}
 					else if (type === 'select') {
-						html += this.select(category + '_' + name, setting.title, setting.description, setting.items, settings[category][name]);
+						html += this.select(fieldName, setting.title, setting.description, setting.items, settings[category][name]);
 					}
 				}
 			}
@@ -565,34 +612,61 @@ let settings = Helper.getDefaultSettings();
 
 // youtube stuff
 const YouTube = {
+	style: null,
+	handleMessage(node) {
+		if (settings.youtube.enabledColors) {
+			let author = node.querySelector('#author-name');
+			if (author) {
+				author.style.color = Helper.getUserChatColor(author.innerText);
+			}
+		}
+
+		let message = node.querySelector('#message');
+		if (message) {
+			message.innerHTML = Helper.BTTV.replaceText(message.innerText);
+		}
+
+		let timestamp = node.querySelector('#timestamp');
+		if (settings.youtube.timestampFormat.toString() === '24' && timestamp) {
+			let timestampText = timestamp.innerText;
+			if (timestamp.innerText.toLowerCase().includes('pm')) {
+				let split = timestamp.innerText.split(':');
+				split[0] = (parseInt(split[0]) + 12).toString();
+				timestampText = split.join(':');
+			}
+
+			timestamp.innerText = timestampText.replace(' PM', '').replace(' AM', '');
+		}
+	},
 	init() {
 		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
-
-		function init(documentElement, target) {
+		const init = (documentElement, target) => {
 			if (target !== null) {
-				function setAuthorColor(node) {
-					let author = node.querySelector('#author-name');
-					if (author) {
-						author.style.color = Helper.getUserChatColor(author.innerText);
-					}
-				}
+				this.document = documentElement;
 
-				const observer = new MutationObserver(function (mutations) {
+				const observer = new MutationObserver((mutations) => {
 					for (let mutation of mutations) {
 						for (let node of mutation.addedNodes) {
-							setAuthorColor(node);
+							this.handleMessage(node);
 						}
 					}
 				});
 
-				for (let element of documentElement.querySelectorAll('yt-live-chat-text-message-renderer')) {
-					setAuthorColor(element);
+				for (let element of this.document.querySelectorAll('yt-live-chat-text-message-renderer')) {
+					this.handleMessage(element);
 				}
 
 				const config = { attributes: true, childList: true, characterData: true };
 				observer.observe(target, config);
+
+				if (this.style === null) {
+					this.style = this.document.createElement('style');
+					this.style.type = 'text/css';
+					this.document.body.append(this.style);
+					this.update();
+				}
 			}
-		}
+		};
 
 		let target = document.querySelector(chatQuerySelector);
 		if (target === null) {
@@ -614,7 +688,36 @@ const YouTube = {
 		}
 	},
 	update() {
-		// currently do nothing
+		let cssCode = ``;
+
+		if (settings.youtube.hideMembershipMessages) {
+			cssCode += `#items yt-live-chat-membership-item-renderer { display:none !important; }`;
+		}
+
+		if (settings.youtube.hidePaidMessages) {
+			cssCode += '#items yt-live-chat-paid-message-renderer { display:none !important; }';
+		}
+
+		if (settings.youtube.hideAvatar) {
+			cssCode += '#items yt-live-chat-text-message-renderer yt-img-shadow#author-photo { display:none !important; }';
+		}
+
+		if (settings.youtube.badgeBeforeName) {
+			cssCode += `#items yt-live-chat-author-chip #author-name {order:2;}
+				#items yt-live-chat-author-chip #chat-badges {order:1;margin-right:2px;}`;
+		}
+
+		if (settings.youtube.hideEngagementMessage) {
+			cssCode += '#items yt-live-chat-viewer-engagement-message-renderer { display:none !important;}';
+		}
+
+		if (typeof this.style.styleSheet !== 'undefined') {
+			this.style.styleSheet.cssText = cssCode;
+		}
+		else {
+			this.style.innerHTML = '';
+			this.style.appendChild(this.document.createTextNode(cssCode));
+		}
 	}
 };
 
@@ -633,6 +736,37 @@ const BetterStreamChat = {
 			removed: '<span class="label red">Removed</span>'
 		};
 		let changelogList = [{
+			version: '1.2.0',
+			date: '2020-07-24',
+			items: [{
+				text: 'Twitch emotes on YouTube.',
+				label: 'added'
+			}, {
+				text: 'New option to enable colors on YouTube.',
+				label: 'added'
+			},  {
+				text: 'New option to hide avatars on YouTube.',
+				label: 'added'
+			}, {
+				text: 'New option to hide paid messages on YouTube.',
+				label: 'added'
+			}, {
+				text: 'New option to hide membership messages on YouTube.',
+				label: 'added'
+			},  {
+				text: 'New option to hide engagement message on YouTube.',
+				label: 'added'
+			},  {
+				text: 'New option to move the user badges before the username on YouTube.',
+				label: 'added'
+			},  {
+				text: 'New option to change the timestamp on YouTube.',
+				label: 'added'
+			}, {
+				text: 'Browser addon settings page (full integrated into Trovo/YouTube).',
+				label: 'removed'
+			}]
+		}, {
 			version: '1.1.2',
 			date: '2020-07-10',
 			items: [{
@@ -931,7 +1065,6 @@ const Trovo = {
 	pageChangeObserver: null,
 	readMoreObserver: null,
 	handleMessage(node) {
-
 		if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
 			node.remove();
 		}
