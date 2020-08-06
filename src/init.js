@@ -739,7 +739,7 @@ const BetterStreamChat = {
 		};
 		let changelogList = [{
 			version: '1.2.0',
-			date: '2020-07-24',
+			date: '2020-08-06',
 			items: [{
 				text: 'Twitch emotes on YouTube.',
 				label: 'added'
