@@ -738,6 +738,13 @@ const BetterStreamChat = {
 			removed: '<span class="label red">Removed</span>'
 		};
 		let changelogList = [{
+			version: '1.2.1',
+			date: '2020-08-06',
+			items: [{
+				text: 'Trovo chat messages not handled by addon.',
+				label: 'fixed'
+			}]
+		}, {
 			version: '1.2.0',
 			date: '2020-08-06',
 			items: [{
@@ -1200,18 +1207,22 @@ const Trovo = {
 			this.settingObserver = null;
 		}
 
-		if (this.chatoBobserver) {
-			this.chatoBobserver.disconnect();
-			this.chatoBobserver = null;
+		if (this.chatObserver) {
+			this.chatObserver.disconnect();
+			this.chatObserver = null;
 		}
 
 		// create new observer if setting-container exists
 		let settingsContainer = document.querySelector('.input-panels-container');
 		if (settingsContainer) {
 			let chatList = document.querySelector('.chat-list-wrap');
-			this.chatoBobserver = new MutationObserver((mutations) => {
+			this.chatObserver = new MutationObserver((mutations) => {
 				for (let mutation of mutations) {
 					for (let node of mutation.addedNodes) {
+						if (!node.classList || !node.classList.contains('message')) {
+							continue;
+						}
+
 						if (settings.trovo.experimentalScroll) {
 							this.handleMessage(node);
 						}
@@ -1278,7 +1289,7 @@ const Trovo = {
 				}
 			});
 			this.settingObserver.observe(settingsContainer, { childList: true });
-			this.chatoBobserver.observe(chatList, { attributes: true, childList: true, characterData: true });
+			this.chatObserver.observe(chatList, { childList: true, subtree: true });
 		}
 	},
 	update() {
