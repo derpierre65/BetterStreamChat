@@ -1,6 +1,6 @@
 {
 	"name": "BetterStreamChat",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "Some settings for YouTube or Trovo chat.",
 	"manifest_version": 2,
 	"content_scripts": [

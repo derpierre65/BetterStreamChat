@@ -59,6 +59,10 @@ body.trovo {
 	cursor: pointer;
 }
 
+#bscSettingsPanel a {
+	text-decoration: none;
+}
+
 #bscSettingsPanel a:hover,
 #bscSettingsPanel .nav > li.active a {
 	border-bottom: 1px solid var(--color-bsc);
@@ -120,6 +124,10 @@ body.trovo {
 
 #bscSettingsPanel main .option .labelField > .description {
 	font-size: 12px;
+}
+
+#bscSettingsPanel ul, #bscSettingsPanel li{
+	list-style: none;
 }
 
 /*#bscSettingsPanel main h3 {

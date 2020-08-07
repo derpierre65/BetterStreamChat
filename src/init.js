@@ -660,6 +660,32 @@ const YouTube = {
 				observer.observe(target, config);
 
 				if (this.style === null) {
+					let settingObserver = new MutationObserver((mutations) => {
+						for (let mutation of mutations) {
+							for (let node of mutation.addedNodes) {
+								if (node.nodeName.toLowerCase() === 'iron-dropdown' && node.classList.contains('yt-live-chat-app')) {
+									// i dont know why, but without the timeout the element doesn't appear :(
+									setTimeout(() => {
+										let settingOption = this.document.createElement('div');
+										settingOption.style.cursor = 'pointer';
+										settingOption.innerHTML = '<paper-item class="style-scope" role="option" tabindex="0" aria-disabled="false">BetterStreamChat</paper-item>';
+										node.querySelector('#items').appendChild(settingOption);
+										settingOption.addEventListener('click', () => {
+											BetterStreamChat.settingsDiv.style.display = 'block';
+											this.document.body.click(); // click on body to close the settings container lol
+										});
+										let popupRenderer = node.querySelector('ytd-menu-popup-renderer');
+										popupRenderer.style.removeProperty('max-height');
+									}, 50);
+
+									settingObserver.disconnect();
+									return;
+								}
+							}
+						}
+					});
+					settingObserver.observe(this.document.querySelector('yt-live-chat-app'), { childList: true });
+
 					this.style = this.document.createElement('style');
 					this.style.type = 'text/css';
 					this.document.body.append(this.style);
@@ -738,6 +764,13 @@ const BetterStreamChat = {
 			removed: '<span class="label red">Removed</span>'
 		};
 		let changelogList = [{
+			version: '1.2.2',
+			date: '2020-08-07',
+			items: [{
+				text: 'Added the BetterStreamChat settings menu to the YouTube Chat Menu.',
+				label: 'added'
+			}]
+		}, {
 			version: '1.2.1',
 			date: '2020-08-06',
 			items: [{
