@@ -1126,7 +1126,7 @@ const Trovo = {
 			if (settings.trovo.timestamp) {
 				let span = document.createElement('span');
 				let splits = node.id.split('_');
-				let date = splits.length === 1 ? new Date() : new Date(parseInt(splits[0]));
+				let date = splits.length === 1 ? new Date() : new Date(parseInt(splits[0].substr(0,13)));
 				span.style.fontSize = '12px';
 
 				let timestamp = Helper.getTime(date, settings.trovo.timestampFormat, settings.trovo.timestampSeconds);
