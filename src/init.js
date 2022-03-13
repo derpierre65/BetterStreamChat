@@ -1,5 +1,5 @@
 let defaultColors = ['#FF0000', '#00FF00', '#B22222', '#FF7F50', '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E', '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'];
-let storageType = 'local';
+let storageType = 'sync';
 
 let twitchGlobalEmotes = {};
 let bttvEmotes = {};
@@ -764,14 +764,7 @@ const BetterStreamChat = {
             removed: '<span class="label red">Removed</span>'
         };
         let changelogList = [{
-            version: '1.2.2',
-            date: '2020-08-07',
-            items: [{
-                text: 'Added the BetterStreamChat settings menu to the YouTube Chat Menu.',
-                label: 'added'
-            }]
-        }, {
-            version: '1.3.0',
+            version: '1.3.1',
             date: '2022-03-13',
             items: [{
                 text: 'Added new option "Remove Chat Background" to remove custom chat backgrounds.',
@@ -782,6 +775,13 @@ const BetterStreamChat = {
             }, {
                 text: 'Fixed Trovo Chat',
                 label: 'fixed'
+            }]
+        },{
+            version: '1.2.2',
+            date: '2020-08-07',
+            items: [{
+                text: 'Added the BetterStreamChat settings menu to the YouTube Chat Menu.',
+                label: 'added'
             }]
         }, {
             version: '1.2.1',
