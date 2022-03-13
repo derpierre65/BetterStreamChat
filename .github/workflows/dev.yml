@@ -1,0 +1,19 @@
+name: In-Development Addon
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Build Zip Name
+        id: version
+        run: echo ::set-output name=ZIP_NAME::"BetterStreamChat-$(git rev-parse --short "$GITHUB_SHA")"
+
+      - name: Upload Zip
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{steps.version.outputs.ZIP_NAME}}
+          path: src/*
