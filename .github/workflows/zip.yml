@@ -1,0 +1,22 @@
+name: Create Addon Zip
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Fetch version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Upload Artifact as Zip
+        uses: actions/upload-artifact@master
+        with:
+          name: BetterStreamChat ${{steps.version.outputs.VERSION}}
+          path: src/*
