@@ -1041,7 +1041,7 @@ const BetterStreamChat = {
 		<footer>
 	        <span>BetterStreamChat ${changelogList[0].version} (${changelogList[0].date})</span>
 	        <span style="float:right;">
-	            <a href="https://discord.gg/WwTcjzN" target="_blank">Discord</a> | 
+	            <a href="https://discord.gg/Zg4VQXZ7MG" target="_blank">Discord</a> | 
 	            <a href="https://github.com/derpierre65/BetterStreamChat/issues/new?labels=bug" target="_blank">Bug report</a> |
 			    <a href="https://github.com/derpierre65/BetterStreamChat/issues/new?labels=enhancement" target="_blank">Feature request</a>
 	        </span>

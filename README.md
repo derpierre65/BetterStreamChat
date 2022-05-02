@@ -10,4 +10,4 @@ https://chrome.google.com/webstore/detail/betterstreamchat/fjandepjjneakiclecahd
 
 ## Discord
 
-https://discord.gg/WwTcjzN
+https://discord.gg/Zg4VQXZ7MG
