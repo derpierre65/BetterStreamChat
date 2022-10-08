@@ -1,0 +1,38 @@
+name: Release Chrome Addon
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: montudor/action-zip@v1
+
+      - name: Build Zip Name
+        id: version
+        run: echo ::set-output name=ZIP_NAME::"BetterStreamChat-$(git rev-parse --short "$GITHUB_SHA")"
+
+      - name: Upload Artifact as Zip
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{steps.version.outputs.ZIP_NAME}}
+          path: src/*
+
+      - name: Creating Zip
+        working-directory: src
+        run: |
+          mkdir ../builds
+          zip -qq -r "../builds/${{steps.version.outputs.ZIP_NAME}}.zip" *
+
+      - name: Upload
+        uses: trmcnvn/chrome-addon@v2
+        with:
+          extension: 'fjandepjjneakiclecahdlodckdkohbf'
+          zip: "builds/${{steps.version.outputs.ZIP_NAME}}.zip"
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}

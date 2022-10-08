@@ -1,6 +1,7 @@
-name: Release Addon
+name: Release Firefox Addon
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
@@ -28,16 +29,7 @@ jobs:
           mkdir ../builds
           zip -qq -r "../builds/${{steps.version.outputs.ZIP_NAME}}.zip" *
 
-      - name: Chrome Upload
-        uses: trmcnvn/chrome-addon@v2
-        with:
-          extension: 'fjandepjjneakiclecahdlodckdkohbf'
-          zip: "builds/${{steps.version.outputs.ZIP_NAME}}.zip"
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-
-      - name: Firefox Upload
+      - name: Upload
         uses: trmcnvn/firefox-addon@v1
         with:
           uuid: '{78418c62-dae4-4bcf-8b96-5004b5d91c74}'
