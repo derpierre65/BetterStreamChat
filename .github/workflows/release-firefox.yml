@@ -17,6 +17,9 @@ jobs:
         id: version
         run: echo ::set-output name=ZIP_NAME::"BetterStreamChat-$(git rev-parse --short "$GITHUB_SHA")"
 
+      - name: Moving firefox files
+        run: mv -f firefox/* src/
+
       - name: Upload Artifact as Zip
         uses: actions/upload-artifact@master
         with:
