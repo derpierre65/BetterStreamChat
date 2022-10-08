@@ -395,7 +395,7 @@ const Helper = {
                     type: 'boolean',
                 },
                 enabledColors: {
-                    title: 'Chat colors',
+                    title: 'User Chat color',
                     description: 'Enable different chat colors for users.',
                     type: 'boolean'
                 },
@@ -764,6 +764,16 @@ const BetterStreamChat = {
             removed: '<span class="label red">Removed</span>'
         };
         let changelogList = [{
+            version: '1.3.2',
+            date: '2022-10-08',
+            items: [{
+                text: 'Fixed trovo Chat and settings menu',
+                label: 'fixed'
+            }, {
+                text: 'Fixed highlighted messages in trovo chat',
+                label: 'fixed'
+            }]
+        }, {
             version: '1.3.1',
             date: '2022-03-13',
             items: [{
@@ -1007,8 +1017,7 @@ const BetterStreamChat = {
 	    <main class="text" data-tab="about">
             soon<br><br>
             
-            The Twitch emotes was disabled, because the used api was changed.<br>
-            I will fix it as soon as possible.
+            The Twitch emotes are currently disabled.
 		</main>
 		<main data-tab="general">
 			${Helper.Settings.build('general')}
@@ -1164,10 +1173,10 @@ const Trovo = {
                 }
 
                 // after inserted the emotes check the highlight words
-                let highlightWords = settings.general.highlightWords.trim().split(' ');
+                let highlightWords = settings.general.highlightWords.trim().split(' ').filter((word) => word);
                 let contentText = content.innerText.toLowerCase();
 
-                if (highlightWords.length > 1 || highlightWords[0].length !== 0) {
+                if (highlightWords.length >= 1) {
                     for (let idx = 0; idx < highlightWords.length; idx++) {
                         highlightWords[idx] = highlightWords[idx].toLowerCase().trim();
                     }
@@ -1182,19 +1191,19 @@ const Trovo = {
             }
         }
 
-        if (settings.trovo.enabledColors) {
+        if (node && settings.trovo.enabledColors) {
             for (let el of node.querySelectorAll('.at.text')) {
-                let name = el.innerText.substr(1);
+                let name = el.innerText.substring(1);
                 el.style.color = Helper.getUserChatColor(name);
             }
         }
 
         // set message css class from settings
-        if (settings.trovo.fadeNewMessage) {
+        /*if (settings.trovo.fadeNewMessage) {
             node.classList.add('loadedFade');
         } else {
             node.classList.add('loaded');
-        }
+        }*/
     },
     async init() {
         // check if page was changed
@@ -1265,7 +1274,8 @@ const Trovo = {
         }
 
         // create new observer if setting-container exists
-        let settingsContainer = document.querySelector('.input-panels-container');
+        const inputPanelContainerSelector = '.input-panels-container';
+        const settingsContainer = document.querySelector(inputPanelContainerSelector);
         if (settingsContainer) {
             let chatList = document.querySelector('.chat-list-wrap');
             this.chatObserver = new MutationObserver((mutations) => {
@@ -1277,7 +1287,8 @@ const Trovo = {
 
                         if (settings.trovo.experimentalScroll) {
                             this.handleMessage(node);
-                        } else {
+                        }
+                        else {
                             // dirty fix for stupid auto scroll
                             window.setTimeout(() => this.handleMessage(node), 50);
                         }
@@ -1297,7 +1308,9 @@ const Trovo = {
                 for (let mutation of mutations) {
                     if (this.readMoreObserver) {
                         for (let node of mutation.removedNodes) {
-                            if (!node.classList) continue;
+                            if (!node.classList) {
+                                continue;
+                            }
 
                             if (node.classList.contains('read-tip')) {
                                 this.readMoreObserver.disconnect();
@@ -1307,7 +1320,9 @@ const Trovo = {
                     }
 
                     for (let node of mutation.addedNodes) {
-                        if (!node.classList) continue;
+                        if (!node.classList) {
+                            continue;
+                        }
 
                         if (node.classList.contains('read-tip')) {
                             if (this.readMoreObserver === null) {
@@ -1321,7 +1336,7 @@ const Trovo = {
                                         }
                                     }
                                 });
-                                this.readMoreObserver.observe(node, {attributes: true});
+                                this.readMoreObserver.observe(node, { attributes: true });
                             }
                         }
 
@@ -1343,8 +1358,16 @@ const Trovo = {
                     }
                 }
             });
-            this.settingObserver.observe(settingsContainer, {childList: true});
-            this.chatObserver.observe(chatList, {childList: true, subtree: true});
+            this.settingObserver.observe(settingsContainer, { childList: true });
+            this.chatObserver.observe(chatList, { childList: true, subtree: true });
+        }
+        else {
+            const applySettingsInterval = window.setInterval(() => {
+                if (document.querySelector(inputPanelContainerSelector)) {
+                    window.clearInterval(applySettingsInterval);
+                    this.applySettings();
+                }
+            }, 50);
         }
     },
     update() {
@@ -1354,11 +1377,11 @@ const Trovo = {
 		.chat-list-wrap .message-user {
 			margin: 0;
 		}
-		.message-comp.gift-message {
+		.message-comp .gift-message {
 			padding: 0;
 			margin: 2px 0;
 		}
-		.message-comp.message-highlighted {
+		.message-comp .message-highlighted {
 		    background-color: rgba(255, 0, 0, 0.3) !important;
 	    }`;
 
@@ -1395,15 +1418,15 @@ const Trovo = {
 
 // initialization
 let initialize = async () => {
-
+    console.log('[BetterStreamChat] Initializing...');
     // do non settings page stuff
     try {
         settings = await Helper.getSettings();
         if (typeof settings === 'undefined') {
             settings = Helper.getDefaultSettings();
         }
-    } catch (e) {
-        console.log('catch', e);
+    } catch (error) {
+        console.log('[BetterStreamChat] Settings initialize failed:', error);
     }
 
     // init trovo
