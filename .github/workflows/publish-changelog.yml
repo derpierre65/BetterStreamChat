@@ -1,0 +1,18 @@
+name: Publish Changelog
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    name: Publish Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: derpierre65/publish-changelog-action@v1
+        with:
+          webhook-url: ${{ secrets.PUBLISH_CHANGELOG_WEBHOOK_URL }}
