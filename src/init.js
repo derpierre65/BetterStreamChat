@@ -766,13 +766,23 @@ const BetterStreamChat = {
             removed: '<span class="label red">Removed</span>'
         };
         let changelogList = [{
-            version: '1.3.2',
+            version: '1.3.5',
             date: '2022-10-09',
             items: [{
+                text: 'Fixed fade chat option (Trovo).',
+                label: 'fixed'
+            }]
+        }, {
+            version: '1.3.4',
+            date: '2022-10-09',
+            items: [{
+                text: 'Twitch emotes are working again.',
+                label: 'fixed'
+            }, {
                 text: 'Fixed chat padding if avatar is disabled (Trovo).',
                 label: 'fixed'
             }, {
-                text: 'Twitch emotes are working again.',
+                text: 'Fixed delete gift message option (Trovo)',
                 label: 'fixed'
             }]
         }, {
@@ -1028,8 +1038,6 @@ const BetterStreamChat = {
 	    </header>
 	    <main class="text" data-tab="about">
             soon<br><br>
-            
-            The Twitch emotes are currently disabled.
 		</main>
 		<main data-tab="general">
 			${Helper.Settings.build('general')}
@@ -1210,11 +1218,15 @@ const Trovo = {
         }
 
         // set message css class from settings
-        /*if (settings.trovo.fadeNewMessage) {
-            node.classList.add('loadedFade');
-        } else {
-            node.classList.add('loaded');
-        }*/
+        if (node && settings.trovo.fadeNewMessage) {
+            // find message-comp div
+            let messageComponent = node;
+            while (messageComponent && !messageComponent.classList.contains('message-comp')) {
+                messageComponent = messageComponent.parentElement;
+            }
+
+            messageComponent.classList.add('bsc-fade');
+        }
     },
     async init() {
         // check if page was changed
@@ -1411,6 +1423,19 @@ const Trovo = {
             }
             .chat-list .message {
                 padding-left:0 !important;
+            }`;
+        }
+
+        if (settings.trovo.fadeNewMessage) {
+            cssCode += `body.trovo .message-comp {
+                opacity: 0;
+            }
+            body.trovo .message-comp.bsc-fade {
+                opacity: 1;
+                animation-name: BetterStreamChatFadeInOpacity;
+                animation-iteration-count: 1;
+                animation-timing-function: linear;
+                animation-duration: 100ms;
             }`;
         }
 

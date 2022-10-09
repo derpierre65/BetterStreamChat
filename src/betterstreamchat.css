@@ -308,22 +308,6 @@ body.trovo {
 	color: #d3d3d3
 }
 
-body.trovo .message-comp-x {
-	opacity: 0;
-}
-
-body.trovo .message-comp.loaded {
-	opacity: 1;
-}
-
-body.trovo .message-comp.loadedFade {
-	opacity: 1;
-	animation-name: BetterStreamChatFadeInOpacity;
-	animation-iteration-count: 1;
-	animation-timing-function: linear;
-	animation-duration: 100ms;
-}
-
 @keyframes BetterStreamChatFadeInOpacity {
 	0% {
 		opacity: 0;
