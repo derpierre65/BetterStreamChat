@@ -1,6 +1,6 @@
 {
 	"name": "BetterStreamChat",
-	"version": "1.3.3",
+	"version": "1.3.4",
 	"description": "Some settings for YouTube or Trovo chat.",
 	"manifest_version": 2,
 	"content_scripts": [
@@ -26,6 +26,7 @@
 		"storage",
 		"https://api.twitch.tv/*",
 		"https://api.betterttv.net/*",
-		"https://api.twitchemotes.com/*"
+		"https://api.twitchemotes.com/*",
+		"https://raw.githubusercontent.com/derpierre65/BetterStreamChat/*"
 	]
 }
