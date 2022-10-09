@@ -122,35 +122,37 @@ const Helper = {
         fetchGlobalEmotes(items) {
             return new Promise((resolve) => {
                 let done = () => {
-                    twitchGlobalEmotes = items.globalTwitchEmotes.emotes;
+                    try {
+                        twitchGlobalEmotes = items.globalTwitchEmotes.emotes;
+                    }
+                    catch (error) {
+                        // do nothing here
+                    }
+
                     resolve();
                 };
 
-                items.globalTwitchEmotes = {
-                    lastUpdate: Date.now(),
-                    emotes: {},
-                }
+                if (typeof items === 'undefined' || typeof items.globalTwitchEmotes === 'undefined' || items.globalTwitchEmotes === null || Date.now() - items.globalTwitchEmotes.lastUpdate > 3 * 24 * 3600 * 1000) {
+                    Helper
+                        .fetch('https://raw.githubusercontent.com/derpierre65/BetterStreamChat/main/data/twitch.json')
+                        .then((data) => {
+                            items.globalTwitchEmotes = {
+                                lastUpdate: Date.now(),
+                                emotes: Object.create(null),
+                            };
 
-                done();
-                return;
-
-                // TODO need to implement global twitch emotes
-                /*if (typeof items === 'undefined' || typeof items.globalTwitchEmotes === 'undefined' || items.globalTwitchEmotes === null || Date.now() - items.globalTwitchEmotes.lastUpdate > 604800000) {
-                    Helper.fetch('https://api.twitchemotes.com/api/v4/channels/0').then((data) => {
-                        items.globalTwitchEmotes = {
-                            lastUpdate: Date.now(),
-                            emotes: {}
-                        };
-                        for (let emote of data.emotes) {
-                            if (emote.code.match(/^[a-zA-Z0-9]+$/)) {
-                                items.globalTwitchEmotes.emotes[emote.code] = emote.id;
+                            for (let emote of data) {
+                                if (emote.code.match(/^[a-zA-Z0-9]+$/)) {
+                                    items.globalTwitchEmotes.emotes[emote.code] = emote.id;
+                                }
                             }
-                        }
-                        chrome.storage.local.set({globalTwitchEmotes: items.globalTwitchEmotes}, () => done());
-                    }).catch(done);
+
+                            chrome.storage.local.set({ globalTwitchEmotes: items.globalTwitchEmotes }, () => done());
+                        })
+                        .catch(done);
                 } else {
                     done();
-                }*/
+                }
             });
         }
     },
@@ -252,9 +254,9 @@ const Helper = {
             let newText = [];
             for (let word of split) {
                 if (this.emotes[word]) {
-                    word = '<img style="vertical-align: middle" src="https://cdn.betterttv.net/emote/' + this.emotes[word] + '/1x" alt="' + word + '" title="' + word + '" />';
+                    word = `<img style="vertical-align: middle" src="https://cdn.betterttv.net/emote/${this.emotes[word]}/1x" alt="${word}" title="${word}" />`;
                 } else if (twitchGlobalEmotes[word]) {
-                    word = '<img style="vertical-align: middle" src="https://static-cdn.jtvnw.net/emoticons/v1/' + twitchGlobalEmotes[word] + '/1.0" alt="' + word + '" title="' + word + '" />';
+                    word = `<img style="vertical-align: middle" src="https://static-cdn.jtvnw.net/emoticons/v2/${twitchGlobalEmotes[word]}/static/dark/1.0" alt="${word}" title="${word}" />`;
                 }
 
                 newText.push(word);
@@ -410,7 +412,7 @@ const Helper = {
                     type: 'boolean'
                 },
                 hideAvatar: {
-                    title: 'Hide avatar',
+                    title: 'Hide avatars',
                     description: '',
                     type: 'boolean'
                 },
@@ -460,7 +462,7 @@ const Helper = {
                     type: 'boolean'
                 },
                 hideAvatar: {
-                    title: 'Hide avatar',
+                    title: 'Hide avatars',
                     description: '',
                     type: 'boolean'
                 },
@@ -764,6 +766,16 @@ const BetterStreamChat = {
             removed: '<span class="label red">Removed</span>'
         };
         let changelogList = [{
+            version: '1.3.2',
+            date: '2022-10-09',
+            items: [{
+                text: 'Fixed chat padding if avatar is disabled (Trovo).',
+                label: 'fixed'
+            }, {
+                text: 'Twitch emotes are working again.',
+                label: 'fixed'
+            }]
+        }, {
             version: '1.3.2',
             date: '2022-10-08',
             items: [{
@@ -1135,9 +1147,8 @@ const Trovo = {
     pageChangeObserver: null,
     readMoreObserver: null,
     handleMessage(node) {
-        if (node.classList.contains('gift-message') && settings.trovo.disableGifts) {
+        if (settings.trovo.disableGifts && (node.classList.contains('gift-message') || node.querySelector('.gift-message'))) {
             node.remove();
-
             return;
         }
 
@@ -1399,7 +1410,7 @@ const Trovo = {
                 display:none;
             }
             .chat-list .message {
-                padding-left:0;
+                padding-left:0 !important;
             }`;
         }
 
