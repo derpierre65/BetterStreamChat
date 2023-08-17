@@ -624,9 +624,19 @@ const YouTube = {
             }
         }
 
+        function replaceTextNodes(element) {
+            for (let child of element.childNodes) {
+                if (child.nodeType === 3) {  // Text node
+                    child.nodeValue = Helper.BTTV.replaceText(child.nodeValue);
+                } else if (child.childNodes.length > 0) {
+                    replaceTextNodes(child);  // Recursively process child nodes
+                }
+            }
+        }
+
         let message = node.querySelector('#message');
         if (message) {
-            message.innerHTML = Helper.BTTV.replaceText(message.innerText);
+            replaceTextNodes(message);
         }
 
         let timestamp = node.querySelector('#timestamp');
