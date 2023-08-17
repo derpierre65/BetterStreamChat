@@ -156,7 +156,7 @@ const Settings = {
 			let user = bttvUsers[userID];
 			let li = document.createElement('li');
 			li.id = 'bttvUser' + userID;
-			li.innerText = user.username + ' (last update: ' + (new Date(user.lastUpdate)).toLocaleString() + ')';
+			li.textContent = user.username + ' (last update: ' + (new Date(user.lastUpdate)).toLocaleString() + ')';
 			list.append(li);
 		}
 	}
@@ -177,13 +177,13 @@ chrome.storage.local.get((items) => {
 
 Helper.BTTV.loaded = function () {
 	let bttvEmoteList = document.querySelector('#bttvEmoteList');
-	bttvEmoteList.innerText = '';
+	bttvEmoteList.textContent = '';
 	for (let emote in this.emotes) {
 		if (this.emotes.hasOwnProperty(emote)) {
 			let li = document.createElement('li');
 			let img = document.createElement('img');
 			let span = document.createElement('span');
-			span.innerText = emote;
+			span.textContent = emote;
 			img.src = 'https://cdn.betterttv.net/emote/' + this.emotes[emote] + '/3x';
 			li.classList.add('emoteCard');
 			li.append(img);
