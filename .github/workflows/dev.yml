@@ -17,3 +17,12 @@ jobs:
         with:
           name: ${{steps.version.outputs.ZIP_NAME}}
           path: src/*
+
+      - name: Moving firefox files
+        run: mv -f firefox/* src/
+
+      - name: Upload Zip
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{steps.version.outputs.ZIP_NAME}}-firefox
+          path: src/*
