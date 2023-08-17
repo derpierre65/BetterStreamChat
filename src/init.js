@@ -1389,6 +1389,10 @@ const Trovo = {
                                 });
                             }
                         }
+
+                        if (node.classList.contains('emotions')) {
+                            this.createEmoteTabs();
+                        }
                     }
                 }
             });
@@ -1403,6 +1407,69 @@ const Trovo = {
                 }
             }, 50);
         }
+    },
+    copyVueAttributes(element, pasteElements = []) {
+        const attributes = [];
+
+        console.log(element);
+        for (const attribute of element.attributes) {
+            if ( attribute.name.startsWith('data-v')) {
+                attributes.push(attribute.name);
+
+                for (const pasteElement of pasteElements) {
+                    pasteElement.setAttribute(attribute.name, '');
+                }
+            }
+        }
+
+        return attributes;
+    },
+    createEmoteTabs() {
+        if ( this.emoteTabsLoaded ) {
+            return;
+        }
+
+        // title
+        const span = document.createElement('span');
+        span.innerHTML = 'Twitch';
+        span.classList.add('flex-auto');
+
+        // header
+        const emoteHeader = document.createElement('p');
+        emoteHeader.classList.add('header-font', 'mb5', 'flex');
+        emoteHeader.append(span);
+
+        // emote container
+        const emotionGroup = document.createElement('div');
+        emotionGroup.classList.add('emotion-group');
+
+        const emoteElement = document.querySelector('.emotions-container .emotion-icon > img');
+        const emoteElements = [];
+
+        for ( const emote of Object.keys(twitchGlobalEmotes) ) {
+            const emotionIcon = document.createElement('div');
+            emotionIcon.classList.add('emotion-icon');
+
+            const image = document.createElement('img');
+            image.alt = image.title = emote;
+            image.src = `https://static-cdn.jtvnw.net/emoticons/v2/${twitchGlobalEmotes[emote]}/static/dark/1.0`;
+
+            emotionIcon.append(image);
+            emotionGroup.append(emotionIcon);
+            emoteElements.push(image, emotionIcon);
+        }
+
+        this.copyVueAttributes(emoteElement, emoteElements);
+        this.copyVueAttributes(
+            document.querySelector('.emotions-container .header-font > span'),
+            [emoteHeader, span, emotionGroup],
+        );
+
+        let secondEmoteSelector = document.querySelector('.emotions-container div:nth-child(2)');
+        secondEmoteSelector.prepend(emotionGroup);
+        secondEmoteSelector.prepend(emoteHeader);
+
+        this.emoteTabsLoaded = true;
     },
     update() {
         let cssCode = `.chat-list-wrap .message * {
