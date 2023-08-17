@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.5]
 ### Fixed
+- Fixed option menu (YouTube).
+- Fixed emojis (YouTube).
+
+## [1.3.5]
+### Fixed
 - Fixed fade chat option (Trovo).
 
 ## [1.3.4] - 2022-10-09

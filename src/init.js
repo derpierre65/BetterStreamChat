@@ -825,7 +825,7 @@ const BetterStreamChat = {
 						label: 'fixed',
 					},
 					{
-						text: 'Fixed emojis on YouTube.',
+						text: 'Fixed emojis (YouTube).',
 						label: 'fixed',
 					},
 				],
