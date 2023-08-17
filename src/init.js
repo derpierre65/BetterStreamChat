@@ -1,9 +1,9 @@
 let defaultColors = ['#FF0000', '#00FF00', '#B22222', '#FF7F50', '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E', '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'];
 let storageType = 'sync';
 
-let twitchGlobalEmotes = {};
-let bttvEmotes = {};
-let bttvUsers = {};
+let twitchGlobalEmotes = Object.create(null);
+let bttvEmotes = Object.create(null);
+let bttvUsers = Object.create(null);
 
 const Helper = {
     getDefaultSettings() {
@@ -800,10 +800,10 @@ const BetterStreamChat = {
             version: '1.3.2',
             date: '2022-10-08',
             items: [{
-                text: 'Fixed trovo Chat and settings menu',
+                text: 'Fixed highlighted messages (Trovo).',
                 label: 'fixed'
             }, {
-                text: 'Fixed highlighted messages in trovo chat',
+                text: 'Fixed initialization and settings (Trovo).',
                 label: 'fixed'
             }]
         }, {

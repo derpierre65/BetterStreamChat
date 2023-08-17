@@ -16,5 +16,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.2] - 2022-10-08
 ### Fixed
-- Fixed Trovo Chat initialization and settings
-- Fixed highlighted messages in trovo chat.
+- Fixed initialization and settings (Trovo). 
+- Fixed highlighted messages (Trovo).
