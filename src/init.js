@@ -662,24 +662,35 @@ const YouTube = {
                 const config = {attributes: true, childList: true, characterData: true};
                 observer.observe(target, config);
 
+                let isSetupSettingOptionDone = false;
+                const setupSettingOption = () => {
+                    if (isSetupSettingOptionDone) return;
+                    const node = this.document.querySelector('yt-live-chat-app iron-dropdown.yt-live-chat-app, yt-live-chat-app tp-yt-iron-dropdown.yt-live-chat-app');
+                    if (!node) return;
+                    isSetupSettingOptionDone = true;
+                    const paperItemTag = node.nodeName.toLowerCase() === 'iron-dropdown' ? 'paper-item' : 'tp-yt-paper-item';
+                    const settingOption = this.document.createElement('div');
+                    settingOption.style.cursor = 'pointer';
+                    settingOption.innerHTML = `<${paperItemTag} class="style-scope" role="option" tabindex="0" aria-disabled="false">BetterStreamChat</${paperItemTag}>`;
+                    node.querySelector('#items').appendChild(settingOption);
+                    settingOption.addEventListener('click', () => {
+                        BetterStreamChat.settingsDiv.style.display = 'block';
+                        this.document.body.click(); // click on body to close the settings container lol
+                    });
+                    const popupRenderer = node.querySelector('ytd-menu-popup-renderer');
+                    popupRenderer.style.removeProperty('max-height');
+                }
+                if (this.style && this.style.isConnected === false) this.style = null;
+
                 if (this.style === null) {
+                    setupSettingOption();
                     let settingObserver = new MutationObserver((mutations) => {
                         for (let mutation of mutations) {
                             for (let node of mutation.addedNodes) {
-                                if (node.nodeName.toLowerCase() === 'iron-dropdown' && node.classList.contains('yt-live-chat-app')) {
+                                const nodeName = node.nodeName.toLowerCase()
+                                if ((nodeName === 'iron-dropdown' || nodeName === 'tp-yt-iron-dropdown') && node.classList.contains('yt-live-chat-app')) {
                                     // i dont know why, but without the timeout the element doesn't appear :(
-                                    setTimeout(() => {
-                                        let settingOption = this.document.createElement('div');
-                                        settingOption.style.cursor = 'pointer';
-                                        settingOption.innerHTML = '<paper-item class="style-scope" role="option" tabindex="0" aria-disabled="false">BetterStreamChat</paper-item>';
-                                        node.querySelector('#items').appendChild(settingOption);
-                                        settingOption.addEventListener('click', () => {
-                                            BetterStreamChat.settingsDiv.style.display = 'block';
-                                            this.document.body.click(); // click on body to close the settings container lol
-                                        });
-                                        let popupRenderer = node.querySelector('ytd-menu-popup-renderer');
-                                        popupRenderer.style.removeProperty('max-height');
-                                    }, 50);
+                                    setTimeout(setupSettingOption, 50);
 
                                     settingObserver.disconnect();
                                     return;
