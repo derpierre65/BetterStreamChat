@@ -651,13 +651,20 @@ const YouTube = {
 		let timestamp = node.querySelector('#timestamp');
 		if (settings.youtube.timestampFormat.toString() === '24' && timestamp) {
 			let timestampText = timestamp.textContent;
-			if (timestamp.textContent.toLowerCase().includes('pm')) {
-				let split = timestamp.textContent.split(':');
-				split[0] = (parseInt(split[0]) + 12).toString();
-				timestampText = split.join(':');
+			const split = timestampText.split(':');
+			const hour = parseInt(split[0]);
+			if (hour < 12) {
+				if ((split[1] || '').toLowerCase().includes('pm')) {
+					split[0] = `${hour + 12}`;
+					timestampText = split.join(':');
+				}
+			} else if (hour === 12) {
+				if ((split[1] || '').toLowerCase().includes('am')) {
+					split[0] = `${hour - 12}`;
+					timestampText = split.join(':');
+				}
 			}
-
-			timestamp.textContent = timestampText.replace(' PM', '').replace(' AM', '');
+			timestamp.textContent = timestampText.replace(/\s[AP]M/i, '');
 		}
 	},
 	init() {
