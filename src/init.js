@@ -657,7 +657,7 @@ const YouTube = {
 				timestampText = split.join(':');
 			}
 
-			timestamp.textContent = timestampText.replace(' PM', '').replace(' AM', '');
+			timestamp.textContent = timestampText.replace(/\s[AP]M/i, '');
 		}
 	},
 	init() {
