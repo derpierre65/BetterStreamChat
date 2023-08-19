@@ -662,6 +662,7 @@ const YouTube = {
 	},
 	init() {
 		const chatQuerySelector = '#items.yt-live-chat-item-list-renderer';
+		const settingPopupBtnId = 'betterstreamchat-setting-popup-btn';
 		const init = (documentElement, target) => {
 			if (!target) {
 				return;
@@ -687,11 +688,12 @@ const YouTube = {
 				if (!node) {
 					return;
 				}
+				if (node.querySelector(`#${settingPopupBtnId}`)) return;
 
 				const paperItemTag = node.nodeName.toLowerCase() === 'iron-dropdown' ? 'paper-item' : 'tp-yt-paper-item';
 				const settingOption = this.document.createElement('div');
 				settingOption.style.cursor = 'pointer';
-				settingOption.innerHTML = `<${paperItemTag} class="style-scope" role="option" tabindex="0" aria-disabled="false">BetterStreamChat</${paperItemTag}>`;
+				settingOption.innerHTML = `<${paperItemTag} id="${settingPopupBtnId}" class="style-scope" role="option" tabindex="0" aria-disabled="false">BetterStreamChat</${paperItemTag}>`;
 				node.querySelector('#items').appendChild(settingOption);
 				settingOption.addEventListener('click', () => {
 					BetterStreamChat.settingsDiv.style.display = 'block';
