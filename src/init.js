@@ -650,21 +650,23 @@ const YouTube = {
 
 		let timestamp = node.querySelector('#timestamp');
 		if (settings.youtube.timestampFormat.toString() === '24' && timestamp) {
-			let timestampText = timestamp.textContent;
-			const split = timestampText.split(':');
+			const split = timestamp.textContent.split(':');
 			const hour = parseInt(split[0]);
-			if (hour < 12) {
-				if ((split[1] || '').toLowerCase().includes('pm')) {
+
+			if (hour <= 12) {
+				const currentTime = (split[1] || '').toLowerCase()
+
+				// add + 12 for 0 - 11pm
+				if (hour < 12 && currentTime.includes('pm')) {
 					split[0] = `${hour + 12}`;
-					timestampText = split.join(':');
 				}
-			} else if (hour === 12) {
-				if ((split[1] || '').toLowerCase().includes('am')) {
+				// remove 12 for 12am (12am = 00:xx)
+				else if ( hour === 12 && currentTime.includes('am') ) {
 					split[0] = `${hour - 12}`;
-					timestampText = split.join(':');
 				}
 			}
-			timestamp.textContent = timestampText.replace(/\s[AP]M/i, '');
+
+			timestamp.textContent = split.join(':').replace(/\s[AP]M/i, '');
 		}
 	},
 	init() {
@@ -826,8 +828,22 @@ const BetterStreamChat = {
 		};
 		let changelogList = [
 			{
+				version: '1.3.7',
+				date: '2023-08-21',
+				items: [
+					{
+						text: 'Fixed 24 hours time format (YouTube).',
+						label: 'fixed',
+					},
+					{
+						text: 'Fixed duplicated setting button (YouTube).',
+						label: 'fixed',
+					},
+				],
+			},
+			{
 				version: '1.3.6',
-				date: '2023-08-17',
+				date: '2023-08-18',
 				items: [
 					{
 						text: 'Fixed options menu (YouTube).',
